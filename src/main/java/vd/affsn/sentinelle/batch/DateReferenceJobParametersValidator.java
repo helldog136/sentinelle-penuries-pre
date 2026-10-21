@@ -16,6 +16,12 @@ import org.springframework.batch.core.JobParametersValidator;
  * <p>Seuls {@value #DATE_REFERENCE} (obligatoire, texte {@code AAAA-MM-JJ} représentant une date
  * calendaire réelle) et {@value #RUN_ID} (posé par l'incrémenteur) sont acceptés ; tout autre
  * paramètre est refusé, ce qui évite qu'une entrée inattendue modifie l'identité de l'instance.
+ *
+ * <p>{@value #RUN_ID}, s'il est présent, doit être de type {@code Long} et STRICTEMENT positif :
+ * l'incrémenteur ({@code RunIdIncrementer}) ne sait relire qu'un {@code Long}, et une valeur d'un
+ * autre type acceptée ici ferait échouer tous les lancements suivants (lanceur et planification)
+ * jusqu'à intervention manuelle. Un lancement refusé ne crée aucune instance de job. Le message
+ * d'erreur ne recopie jamais la valeur reçue.
  */
 public final class DateReferenceJobParametersValidator implements JobParametersValidator {
 
@@ -34,6 +40,12 @@ public final class DateReferenceJobParametersValidator implements JobParametersV
         for (String cle : parameters.getParameters().keySet()) {
             if (!AUTORISES.contains(cle)) {
                 throw new JobParametersInvalidException("Paramètre de job non autorisé");
+            }
+        }
+        if (parameters.getParameters().containsKey(RUN_ID)) {
+            Object runId = parameters.getParameters().get(RUN_ID).getValue();
+            if (!(runId instanceof Long numero) || numero <= 0) {
+                throw new JobParametersInvalidException("Paramètre run.id : entier long strictement positif attendu");
             }
         }
         Object brut = parameters.getParameters().containsKey(DATE_REFERENCE)

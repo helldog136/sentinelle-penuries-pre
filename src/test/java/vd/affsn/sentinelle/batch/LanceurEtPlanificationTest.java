@@ -285,33 +285,51 @@ class LanceurEtPlanificationTest {
             assertThat(datesLancees).containsExactly(D, D.plusDays(1));
         }
 
-        /**
-         * Comportement actuel documenté : un job terminé en FAILED (sans exception du lanceur) est
-         * journalisé au niveau INFO (« terminé : FAILED »), pas en ERROR. Spécification muette.
-         */
+        /** Un job terminé en FAILED (sans exception du lanceur) est journalisé en ERROR. */
         @Test
-        void jobEnEchecJournaliseEnInfoAvecLeStatut() {
+        void jobEnEchecJournaliseEnErreurAvecLeStatut() {
             statut = BatchStatus.FAILED;
             new PlanificationCalculTension(lanceur, horloge).declencher();
 
             assertThat(journal.list).singleElement().satisfies(e -> {
-                assertThat(e.getLevel()).isEqualTo(Level.INFO);
-                assertThat(e.getFormattedMessage()).contains("FAILED");
+                assertThat(e.getLevel()).isEqualTo(Level.ERROR);
+                assertThat(e.getFormattedMessage()).contains("FAILED").contains("2026-10-21");
+            });
+        }
+
+        /** Tout statut autre que COMPLETED et FAILED (ici STOPPED) est journalisé en WARN. */
+        @Test
+        void jobSansSuccesNiEchecJournaliseEnWarn() {
+            statut = BatchStatus.STOPPED;
+            new PlanificationCalculTension(lanceur, horloge).declencher();
+
+            assertThat(journal.list).singleElement().satisfies(e -> {
+                assertThat(e.getLevel()).isEqualTo(Level.WARN);
+                assertThat(e.getFormattedMessage()).contains("STOPPED");
             });
         }
 
         /**
-         * Comportement actuel documenté : l'appel à l'horloge est HORS du try ; une exception de
-         * l'horloge se propage au planificateur (qui, par défaut, la journalise et conserve la
-         * planification). La Javadoc ne promet la non-propagation que pour le lancement.
+         * L'appel à l'horloge est DANS le try : une panne de l'horloge est journalisée en ERROR
+         * (avec sa cause) sans être propagée, aucun lancement n'a lieu, et le déclenchement
+         * suivant reste possible.
          */
         @Test
-        void exceptionDeLHorlogePropageeEtAucunLancement() {
+        void exceptionDeLHorlogeJournaliseeEnErreurSansPropagationNiLancement() {
             horloge.tomberEnPanne(new IllegalStateException("horloge"));
             var planification = new PlanificationCalculTension(lanceur, horloge);
 
-            assertThatThrownBy(planification::declencher).isInstanceOf(IllegalStateException.class);
+            assertThatCode(planification::declencher).doesNotThrowAnyException();
             assertThat(datesLancees).isEmpty();
+            assertThat(journal.list).singleElement().satisfies(e -> {
+                assertThat(e.getLevel()).isEqualTo(Level.ERROR);
+                assertThat(e.getThrowableProxy()).isNotNull();
+                assertThat(e.getThrowableProxy().getClassName()).isEqualTo(IllegalStateException.class.getName());
+            });
+
+            horloge.fixer(D.plusDays(1));
+            planification.declencher();
+            assertThat(datesLancees).containsExactly(D.plusDays(1));
         }
 
         @Test

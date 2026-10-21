@@ -28,7 +28,8 @@ import org.springframework.validation.annotation.Validated;
  * @param seuilTension  seuil de notification : une région est signalée si son indice est
  *                      STRICTEMENT supérieur à cette valeur ; nombre fini {@code >= 0}
  *                      (défaut {@code 10.0}, cf. ADR-003)
- * @param notifications emplacement du fichier de notifications
+ * @param notifications emplacement du fichier de notifications ; le répertoire est OBLIGATOIRE
+ *                      quand {@code enabled} vaut {@code true} (aucun défaut)
  */
 @Validated
 @ConfigurationProperties(prefix = "sentinelle.batch")
@@ -51,6 +52,11 @@ public record TensionBatchProperties(
         if (seuilTension == null || !Double.isFinite(seuilTension) || seuilTension < 0) {
             throw new IllegalArgumentException("sentinelle.batch.seuil-tension : nombre fini >= 0 attendu");
         }
+        if (enabled && (notifications == null || notifications.repertoire() == null)) {
+            throw new IllegalArgumentException(
+                    "sentinelle.batch.notifications.repertoire : obligatoire quand le job est activé "
+                            + "(chemin absolu, aucun défaut)");
+        }
     }
 
     public ZoneId zoneId() {
@@ -59,20 +65,28 @@ public record TensionBatchProperties(
 
     /**
      * @param repertoire répertoire ABSOLU où le fichier de notifications est écrit ; fixé par
-     *                   l'exploitation, jamais par un utilisateur. Défaut : sous le répertoire
-     *                   temporaire du système ({@code java.io.tmpdir}).
+     *                   l'exploitation, jamais par un utilisateur. AUCUN défaut : obligatoire quand
+     *                   le job est activé (absent ou vide, le démarrage échoue ; ce contrôle est fait
+     *                   par {@link TensionBatchProperties}). Une valeur blanche ou relative est
+     *                   refusée. S'il n'existe pas, le répertoire est créé à la première publication
+     *                   avec les droits {@code rwx------} sur un système POSIX ; sur un système non
+     *                   POSIX, il est créé avec les droits par défaut du système (à sécuriser par
+     *                   l'exploitation).
      */
-    public record Notifications(@NotNull Path repertoire) {
+    public record Notifications(Path repertoire) {
 
         public Notifications {
-            if (repertoire == null) {
-                repertoire = Path.of(System.getProperty("java.io.tmpdir"), "sentinelle", "notifications-tension");
+            if (repertoire != null) {
+                if (repertoire.toString().isBlank()) {
+                    throw new IllegalArgumentException(
+                            "sentinelle.batch.notifications.repertoire : valeur vide ou blanche refusée");
+                }
+                if (!repertoire.isAbsolute()) {
+                    throw new IllegalArgumentException(
+                            "sentinelle.batch.notifications.repertoire : chemin absolu attendu");
+                }
+                repertoire = repertoire.normalize();
             }
-            if (!repertoire.isAbsolute()) {
-                throw new IllegalArgumentException(
-                        "sentinelle.batch.notifications.repertoire : chemin absolu attendu");
-            }
-            repertoire = repertoire.normalize();
         }
     }
 }

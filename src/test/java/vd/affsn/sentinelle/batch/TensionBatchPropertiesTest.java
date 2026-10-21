@@ -56,9 +56,26 @@ class TensionBatchPropertiesTest {
                 assertThat(p.fuseau()).isEqualTo("UTC");
                 assertThat(p.zoneId()).isEqualTo(ZoneId.of("UTC"));
                 assertThat(p.seuilTension()).isEqualTo(10.0);
-                assertThat(p.notifications().repertoire()).isEqualTo(
-                        Path.of(System.getProperty("java.io.tmpdir"), "sentinelle", "notifications-tension").normalize());
-                assertThat(p.notifications().repertoire()).isAbsolute();
+                // Aucun défaut pour le répertoire : il est obligatoire seulement quand le job est activé.
+                assertThat(p.notifications().repertoire()).isNull();
+            });
+        }
+
+        @Test
+        void activeSansRepertoireEmpecheLeDemarrage() {
+            runner.withPropertyValues("sentinelle.batch.enabled=true").run(ctx -> {
+                assertThat(ctx).hasFailed();
+                assertThat(chaineContient(ctx.getStartupFailure(), "notifications.repertoire : obligatoire")).isTrue();
+            });
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"", " ", "   "})
+        void activeAvecRepertoireVideOuBlancEmpecheLeDemarrage(String repertoire) {
+            runner.withPropertyValues("sentinelle.batch.enabled=true",
+                    "sentinelle.batch.notifications.repertoire=" + repertoire).run(ctx -> {
+                assertThat(ctx).hasFailed();
+                assertThat(chaineContient(ctx.getStartupFailure(), "sentinelle.batch.notifications.repertoire")).isTrue();
             });
         }
 
@@ -121,17 +138,12 @@ class TensionBatchPropertiesTest {
             });
         }
 
-        /**
-         * Comportement actuel documenté (ambiguïté) : une valeur VIDE pour le répertoire est
-         * convertie en {@code null} par Spring, donc remplacée silencieusement par le défaut
-         * (répertoire temporaire du système) au lieu d'échouer.
-         */
+        /** Job désactivé : un répertoire vide reste sans effet (pas de repli sur un défaut sous /tmp). */
         @Test
-        void repertoireVideRetombeSurLeDefaut() {
+        void desactiveRepertoireVideNeRetombePasSurUnDefaut() {
             runner.withPropertyValues("sentinelle.batch.notifications.repertoire=").run(ctx -> {
                 assertThat(ctx).hasNotFailed();
-                assertThat(ctx.getBean(TensionBatchProperties.class).notifications().repertoire()).isEqualTo(
-                        Path.of(System.getProperty("java.io.tmpdir"), "sentinelle", "notifications-tension").normalize());
+                assertThat(ctx.getBean(TensionBatchProperties.class).notifications().repertoire()).isNull();
             });
         }
     }
@@ -182,10 +194,20 @@ class TensionBatchPropertiesTest {
         }
 
         @Test
-        void repertoireNulRemplaceParLeDefautSousTmpdir() {
-            assertThat(new TensionBatchProperties.Notifications(null).repertoire())
-                    .startsWithRaw(Path.of(System.getProperty("java.io.tmpdir")).normalize())
-                    .endsWithRaw(Path.of("sentinelle", "notifications-tension"));
+        void repertoireNulResteNulSansDefautEtBlancRefuse() {
+            assertThat(new TensionBatchProperties.Notifications(null).repertoire()).isNull();
+            echoue(() -> new TensionBatchProperties.Notifications(Path.of(" ")), "valeur vide ou blanche refusée");
+        }
+
+        @Test
+        void activeSansRepertoireRefuseParLeConstructeurSansRecopierDeContenu() {
+            echoue(() -> new TensionBatchProperties(true, "0 0 2 * * *", "UTC", 10.0,
+                    new TensionBatchProperties.Notifications(null)), "notifications.repertoire : obligatoire");
+            echoue(() -> new TensionBatchProperties(true, "0 0 2 * * *", "UTC", 10.0, null),
+                    "notifications.repertoire : obligatoire");
+            // Désactivé : accepté.
+            new TensionBatchProperties(false, "0 0 2 * * *", "UTC", 10.0,
+                    new TensionBatchProperties.Notifications(null));
         }
 
         /**

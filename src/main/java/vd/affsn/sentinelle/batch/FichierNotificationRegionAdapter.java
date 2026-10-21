@@ -46,7 +46,11 @@ import vd.affsn.sentinelle.application.port.out.NotificationRegionPort;
  *   <li>écriture atomique : fichier temporaire dans le même répertoire, {@code fsync}, puis
  *       {@link StandardCopyOption#ATOMIC_MOVE} ; si le système de fichiers ne supporte pas le
  *       déplacement atomique, l'écriture échoue (pas de repli non atomique) ;</li>
- *   <li>sur POSIX, le fichier est créé en {@code rw-r-----}.</li>
+ *   <li>sur POSIX, le fichier est créé en {@code rw-r-----} ;</li>
+ *   <li>si le répertoire configuré n'existe pas, il est créé (avec ses parents manquants) en
+ *       {@code rwx------} (propriétaire seul, sous réserve de l'umask) sur un système POSIX ; sur un
+ *       système non POSIX, il est créé avec les droits par défaut du système, sans durcissement
+ *       possible ici. Un répertoire déjà existant n'est jamais modifié.</li>
  * </ul>
  */
 public final class FichierNotificationRegionAdapter implements NotificationRegionPort {
@@ -69,13 +73,24 @@ public final class FichierNotificationRegionAdapter implements NotificationRegio
     public void publier(Notification notification) {
         Objects.requireNonNull(notification, "notification");
         try {
-            Path base = Files.createDirectories(repertoire).toRealPath();
+            Path base = creerRepertoire(repertoire).toRealPath();
             Path cible = cheminCible(base, notification.dateReference());
             byte[] contenu = json.writeValueAsBytes(versJson(notification));
             ecrireAtomiquement(base, cible, contenu);
         } catch (IOException e) {
             throw new UncheckedIOException("Échec d'écriture du fichier de notifications de tension", e);
         }
+    }
+
+    private static Path creerRepertoire(Path repertoire) throws IOException {
+        if (Files.isDirectory(repertoire)) {
+            return repertoire;
+        }
+        if (repertoire.getFileSystem().supportedFileAttributeViews().contains("posix")) {
+            return Files.createDirectories(repertoire,
+                    PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------")));
+        }
+        return Files.createDirectories(repertoire);
     }
 
     /** Visible pour diagnostic : nom de fichier déterministe pour une date. */

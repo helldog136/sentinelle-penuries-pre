@@ -318,6 +318,30 @@ class FichierNotificationRegionAdapterTest {
     }
 
     @Nested
+    class CreationDuRepertoire {
+
+        @Test
+        void repertoireAbsentCreeEnProprietaireSeulSurPosix() throws IOException {
+            assumeTrue(FileSystems.getDefault().supportedFileAttributeViews().contains("posix"));
+            Path cible = tmp.resolve("a").resolve("notifs");
+            new FichierNotificationRegionAdapter(cible).publier(notification(D, 1.0));
+
+            assertThat(PosixFilePermissions.toString(Files.getPosixFilePermissions(cible))).isEqualTo("rwx------");
+            assertThat(Files.exists(cible.resolve(NOM_D))).isTrue();
+        }
+
+        @Test
+        void repertoireExistantNonModifie() throws IOException {
+            assumeTrue(FileSystems.getDefault().supportedFileAttributeViews().contains("posix"));
+            Path existant = Files.createDirectory(tmp.resolve("existant"));
+            Files.setPosixFilePermissions(existant, PosixFilePermissions.fromString("rwxr-xr-x"));
+            new FichierNotificationRegionAdapter(existant).publier(notification(D, 1.0));
+
+            assertThat(PosixFilePermissions.toString(Files.getPosixFilePermissions(existant))).isEqualTo("rwxr-xr-x");
+        }
+    }
+
+    @Nested
     class AmbiguitesDocumentees {
 
         /**

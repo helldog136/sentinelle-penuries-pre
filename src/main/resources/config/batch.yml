@@ -19,7 +19,13 @@ sentinelle:
     fuseau: UTC
     # Une région est notifiée si son indice est STRICTEMENT supérieur à ce seuil. Nombre fini >= 0.
     seuil-tension: 10.0
-    notifications:
-      # Répertoire ABSOLU fixé par l'exploitation (jamais saisi par un utilisateur).
-      # Le nom du fichier est dérivé de la seule date : notifications-tension-AAAA-MM-JJ.json
-      repertoire: ${java.io.tmpdir}/sentinelle/notifications-tension
+    # Bloc notifications (volontairement en commentaire : une clé YAML « notifications: » sans valeur
+    # serait lue comme une chaîne vide et ferait échouer la liaison même job désactivé).
+    # notifications:
+    # OBLIGATOIRE quand sentinelle.batch.enabled=true : AUCUN défaut (absent, vide ou blanc : le
+    # démarrage échoue). Répertoire ABSOLU fixé par l'exploitation (jamais saisi par un utilisateur),
+    # de préférence dédié, hors répertoire temporaire partagé. S'il n'existe pas, il est créé en
+    # rwx------ (système POSIX ; droits par défaut du système sinon).
+    # Le nom du fichier est dérivé de la seule date : notifications-tension-AAAA-MM-JJ.json
+    # Exemple (à fournir par l'environnement, par ex. SENTINELLE_BATCH_NOTIFICATIONS_REPERTOIRE) :
+    #   repertoire: /var/lib/sentinelle/notifications-tension

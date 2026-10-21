@@ -89,6 +89,44 @@ class DateReferenceJobParametersValidatorTest {
                     .hasMessageContaining("dateReference obligatoire");
         }
 
+        private JobParameters avecRunId(JobParametersBuilder b) {
+            return b.addString("dateReference", "2026-10-21").toJobParameters();
+        }
+
+        @Test
+        void runIdTexteRefuseSansRecopierLaValeur() {
+            JobParameters p = avecRunId(new JobParametersBuilder().addString("run.id", "manuel"));
+            assertThatThrownBy(() -> validateur.validate(p))
+                    .isInstanceOf(JobParametersInvalidException.class)
+                    .hasMessageContaining("run.id")
+                    .hasMessageNotContaining("manuel");
+        }
+
+        @Test
+        void runIdDAutreTypeRefuse() {
+            assertThatThrownBy(() -> validateur.validate(avecRunId(new JobParametersBuilder().addDouble("run.id", 1.0))))
+                    .isInstanceOf(JobParametersInvalidException.class);
+            assertThatThrownBy(() -> validateur.validate(
+                    avecRunId(new JobParametersBuilder().addLocalDate("run.id", LocalDate.of(2026, 10, 21)))))
+                    .isInstanceOf(JobParametersInvalidException.class);
+        }
+
+        @Test
+        void runIdLongNegatifOuNulRefuse() {
+            for (long v : new long[] {-1L, 0L, Long.MIN_VALUE}) {
+                JobParameters p = avecRunId(new JobParametersBuilder().addLong("run.id", v));
+                assertThatThrownBy(() -> validateur.validate(p))
+                        .isInstanceOf(JobParametersInvalidException.class)
+                        .hasMessageNotContaining(String.valueOf(v));
+            }
+        }
+
+        @Test
+        void runIdLongPositifAccepte() throws Exception {
+            validateur.validate(avecRunId(new JobParametersBuilder().addLong("run.id", 1L)));
+            validateur.validate(avecRunId(new JobParametersBuilder().addLong("run.id", Long.MAX_VALUE)));
+        }
+
         @Test
         void dateDeTypeNonTexteRefusee() {
             // Un LocalDate typé n'est pas le contrat (texte AAAA-MM-JJ) : refusé.

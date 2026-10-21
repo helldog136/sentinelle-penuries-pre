@@ -9,7 +9,10 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobParametersInvalidException;
+import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
@@ -178,25 +181,71 @@ class TensionBatchConfigurationTest {
     }
 
     /**
-     * Comportement actuel documenté (ambiguïté, risque d'exploitation) : le validateur accepte
-     * {@code run.id} de n'importe quel type. Un lancement manuel avec {@code run.id} texte non
-     * numérique est accepté, puis TOUS les lancements suivants par le lanceur (donc la
-     * planification) échouent dans le RunIdIncrementer, jusqu'à intervention manuelle.
+     * Correction : le validateur exige {@code run.id} de type Long strictement positif. Un
+     * lancement manuel avec {@code run.id} texte est REFUSÉ (aucune instance créée) et ne peut donc
+     * plus empoisonner les lancements suivants (lanceur et planification).
      */
     @Test
-    void runIdTexteAccepteEmpoisonneLesLancementsSuivants() {
+    void runIdTexteRefuseEtNenpoisonnePasLesLancementsSuivants() {
         runner().withPropertyValues("sentinelle.batch.enabled=true").run(ctx -> {
             Job job = ctx.getBean(Job.class);
-            var manuel = ctx.getBean(JobLauncher.class).run(job,
+            JobExplorer explorer = ctx.getBean(JobExplorer.class);
+            assertThatThrownBy(() -> ctx.getBean(JobLauncher.class).run(job,
                     new JobParametersBuilder()
                             .addString("dateReference", "2026-10-21")
                             .addString("run.id", "manuel")
-                            .toJobParameters());
-            assertThat(manuel.getStatus().isUnsuccessful()).isFalse();
+                            .toJobParameters()))
+                    .isInstanceOf(JobParametersInvalidException.class)
+                    .hasMessageContaining("run.id")
+                    .hasMessageNotContaining("manuel");
+            assertThat(explorer.getJobInstanceCount(TensionBatchConfiguration.NOM_JOB)).isZero();
 
-            assertThatThrownBy(() -> ctx.getBean(LanceurCalculTension.class).lancer(LocalDate.of(2026, 10, 22)))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("run.id");
+            var suivant = ctx.getBean(LanceurCalculTension.class).lancer(LocalDate.of(2026, 10, 22));
+            assertThat(suivant.getStatus()).isEqualTo(BatchStatus.COMPLETED);
+            assertThat(suivant.getJobParameters().getLong("run.id")).isEqualTo(1L);
         });
+    }
+
+    @Test
+    void runIdLongNegatifOuNulRefusesPositifAccepteEtLancementSuivantNormal() {
+        runner().withPropertyValues("sentinelle.batch.enabled=true").run(ctx -> {
+            Job job = ctx.getBean(Job.class);
+            JobLauncher launcher = ctx.getBean(JobLauncher.class);
+            for (long invalide : new long[] {-1L, 0L}) {
+                assertThatThrownBy(() -> launcher.run(job, new JobParametersBuilder()
+                        .addString("dateReference", "2026-10-21").addLong("run.id", invalide).toJobParameters()))
+                        .isInstanceOf(JobParametersInvalidException.class);
+            }
+            assertThat(ctx.getBean(JobExplorer.class).getJobInstanceCount(TensionBatchConfiguration.NOM_JOB)).isZero();
+
+            var manuel = launcher.run(job, new JobParametersBuilder()
+                    .addString("dateReference", "2026-10-21").addLong("run.id", 5L).toJobParameters());
+            assertThat(manuel.getStatus()).isEqualTo(BatchStatus.COMPLETED);
+
+            var suivant = ctx.getBean(LanceurCalculTension.class).lancer(LocalDate.of(2026, 10, 22));
+            assertThat(suivant.getStatus()).isEqualTo(BatchStatus.COMPLETED);
+            assertThat(suivant.getJobParameters().getLong("run.id")).isEqualTo(6L);
+        });
+    }
+
+    @Test
+    void activeSansRepertoireOuAvecRepertoireVideOuBlancEchecAuDemarrage() {
+        for (String valeur : new String[] {"", "   "}) {
+            runner().withPropertyValues("sentinelle.batch.enabled=true",
+                    "sentinelle.batch.notifications.repertoire=" + valeur)
+                    .run(ctx -> assertThat(ctx).hasFailed());
+        }
+        new ApplicationContextRunner()
+                .withConfiguration(AutoConfigurations.of(
+                        DataSourceAutoConfiguration.class,
+                        DataSourceTransactionManagerAutoConfiguration.class,
+                        BatchAutoConfiguration.class,
+                        ValidationAutoConfiguration.class))
+                .withUserConfiguration(PortsFactices.class, TensionBatchConfiguration.class)
+                .withPropertyValues(
+                        "spring.datasource.url=jdbc:h2:mem:batch-cfg-" + UUID.randomUUID(),
+                        "spring.batch.jdbc.initialize-schema=never",
+                        "sentinelle.batch.enabled=true")
+                .run(ctx -> assertThat(ctx).hasFailed());
     }
 }

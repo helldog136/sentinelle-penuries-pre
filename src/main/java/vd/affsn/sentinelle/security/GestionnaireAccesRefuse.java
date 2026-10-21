@@ -9,9 +9,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 
 /**
  * Réponse 403 au format {@code application/problem+json} (RFC 7807), générique, sans détail
- * interne ni écho du jeton.
- *
- * <p>STUB (phase A).
+ * interne ni écho du jeton ou de l'identité.
  */
 public final class GestionnaireAccesRefuse implements AccessDeniedHandler {
 
@@ -19,6 +17,11 @@ public final class GestionnaireAccesRefuse implements AccessDeniedHandler {
     public void handle(HttpServletRequest request,
                        HttpServletResponse response,
                        AccessDeniedException exception) throws IOException {
-        throw new UnsupportedOperationException("GestionnaireAccesRefuse : phase B");
+        if (response.isCommitted()) {
+            return;
+        }
+        ReponseProbleme.ecrire(request, response, HttpServletResponse.SC_FORBIDDEN,
+                "acces-refuse", "Accès refusé",
+                "Le rôle de l'appelant ne permet pas d'accéder à cette ressource.");
     }
 }

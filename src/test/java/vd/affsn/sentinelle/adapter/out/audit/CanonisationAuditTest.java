@@ -126,15 +126,14 @@ class CanonisationAuditTest {
         }
 
         /**
-         * Ambiguïté documentée : l'espace insécable (U+00A0) n'est ni un séparateur reconnu par
-         * {@code \s} (ASCII seulement) ni retirée par {@code strip()}. « Bearer » + U+00A0 + jeton est
-         * donc stocké tel quel, et les U+00A0 de bord sont conservées.
+         * L'espace insécable (U+00A0) est traitée comme une espace : « Bearer » + U+00A0 + jeton est
+         * masqué, et les U+00A0 de bord sont retirées.
          */
         @Test
-        void espaceInsecableNonTraitee_ambiguite() {
-            assertThat(CanonisationAudit.assainirResume("Bearer s3cr3t")).isEqualTo("Bearer s3cr3t");
-            assertThat(CanonisationAudit.assainirResume(" x ")).isEqualTo(" x ");
-            assertThat(CanonisationAudit.assainirResume("　x　")).isEqualTo("x");
+        void espaceInsecableTraiteeCommeSeparateur_jetonMasque() {
+            assertThat(CanonisationAudit.assainirResume("Bearer\u00A0s3cr3t")).isEqualTo(CanonisationAudit.MASQUE);
+            assertThat(CanonisationAudit.assainirResume("\u00A0x\u00A0")).isEqualTo("x");
+            assertThat(CanonisationAudit.assainirResume("\u3000x\u3000")).isEqualTo("x");
         }
 
         @Test

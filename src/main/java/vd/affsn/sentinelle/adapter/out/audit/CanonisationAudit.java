@@ -58,7 +58,7 @@ final class CanonisationAudit {
 
     /** Jeton JWT compact (en-tête base64url commençant par « {" ») ou en-tête Bearer. */
     private static final Pattern JETON_PROBABLE = Pattern.compile(
-            "eyJ[A-Za-z0-9_-]{4,}\\.[A-Za-z0-9_-]{4,}\\.[A-Za-z0-9_-]*|(?i:bearer)\\s+\\S+");
+            "eyJ[A-Za-z0-9_-]{4,}+\\.[A-Za-z0-9_-]{4,}+\\.[A-Za-z0-9_-]*+|(?i:bearer)\\s++\\S++");
 
     static final String MASQUE = "[masqué]";
 
@@ -75,10 +75,10 @@ final class CanonisationAudit {
     }
 
     /**
-     * Assainissement défensif du résumé, indépendamment de la validation du port : masque ce qui
-     * ressemble à un jeton, remplace tout caractère de contrôle, de format (ex. surcharges
-     * bidirectionnelles) ou séparateur de ligne/paragraphe Unicode par une espace, retire les
-     * espaces de bord, puis tronque à {@link EvenementAudit#LONGUEUR_MAX_RESUME} unités UTF-16
+     * Assainissement défensif du résumé, indépendamment de la validation du port : d'abord
+     * normalise (tout caractère de contrôle, de format, ex. surcharges bidirectionnelles, séparateur
+     * de ligne/paragraphe Unicode ou substitut isolé devient une espace ; espaces de bord retirés),
+     * PUIS masque ce qui ressemble à un jeton (l'ordre rend l'assainissement idempotent), puis tronque à {@link EvenementAudit#LONGUEUR_MAX_RESUME} unités UTF-16
      * sans couper une paire de substitution (donc au plus 500 caractères côté base).
      *
      * <p>Limite assumée : aucune heuristique ne détecte de façon fiable une donnée patient ; la
@@ -86,13 +86,14 @@ final class CanonisationAudit {
      */
     static String assainirResume(String resume) {
         Objects.requireNonNull(resume, "resume");
-        String masque = JETON_PROBABLE.matcher(resume).replaceAll(MASQUE);
-        StringBuilder sb = new StringBuilder(Math.min(masque.length(), EvenementAudit.LONGUEUR_MAX_RESUME + 16));
-        masque.codePoints().forEach(cp -> {
+        StringBuilder sb = new StringBuilder(Math.min(resume.length(), EvenementAudit.LONGUEUR_MAX_RESUME + 16));
+        resume.codePoints().forEach(cp -> {
             if (Character.isISOControl(cp)
                     || Character.getType(cp) == Character.FORMAT
                     || Character.getType(cp) == Character.LINE_SEPARATOR
                     || Character.getType(cp) == Character.PARAGRAPH_SEPARATOR
+                    // séparateurs d'espace Unicode (dont U+00A0, U+202F, U+2007) : unifiés en espace
+                    || Character.getType(cp) == Character.SPACE_SEPARATOR
                     // substitut isolé : non encodable en UTF-8, l'octet stocké différerait du haché
                     || Character.getType(cp) == Character.SURROGATE) {
                 sb.append(' ');
@@ -100,7 +101,7 @@ final class CanonisationAudit {
                 sb.appendCodePoint(cp);
             }
         });
-        String propre = sb.toString().strip();
+        String propre = JETON_PROBABLE.matcher(sb.toString().strip()).replaceAll(MASQUE);
         if (propre.length() > EvenementAudit.LONGUEUR_MAX_RESUME) {
             int fin = EvenementAudit.LONGUEUR_MAX_RESUME;
             if (Character.isHighSurrogate(propre.charAt(fin - 1))) {

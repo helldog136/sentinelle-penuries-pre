@@ -18,8 +18,7 @@ info:
 
     **Dates** : les dates métier sont des dates calendaires ISO-8601
     `AAAA-MM-JJ` (format OpenAPI `date`), sans heure ni fuseau, identiques à
-    la représentation du contrat gRPC. Les horodatages techniques sont des
-    instants `date-time` en UTC.
+    la représentation du contrat gRPC.
 
     **Erreurs** : toutes les erreurs suivent la RFC 7807
     (`application/problem+json`).
@@ -274,8 +273,9 @@ components:
           maxLength: 280
           nullable: true
           description: >-
-            Commentaire libre du distributeur (280 caractères Unicode au plus,
-            après suppression des espaces de début et de fin).
+            Commentaire libre du distributeur (280 unités UTF-16 au plus, et non
+            points de code : certains caractères hors plan multilingue de base
+            comptent pour deux), après suppression des espaces de début et de fin.
 
     Rupture:
       type: object
@@ -287,8 +287,6 @@ components:
         - regions
         - alternatives
         - statut
-        - creeLe
-        - modifieLe
       properties:
         id:
           $ref: '#/components/schemas/RuptureId'
@@ -325,15 +323,7 @@ components:
         distributeurId:
           type: string
           description: Identifiant de l'organisation distributrice déclarante (issu de son JWT).
-          example: DIST-0042
-        creeLe:
-          type: string
-          format: date-time
-          description: Instant de déclaration (UTC).
-        modifieLe:
-          type: string
-          format: date-time
-          description: Instant de dernière modification (UTC).
+          example: PRO-000042
 
     PageRuptures:
       type: object
@@ -493,9 +483,7 @@ components:
           - codeProduit: VMP-302302
             commentaire: Reportine 10 mg, boîte de 30 ; stocks limités en Côte du Timeout.
         statut: EN_COURS
-        distributeurId: DIST-0042
-        creeLe: '2026-10-02T07:15:00Z'
-        modifieLe: '2026-10-19T14:02:31Z'
+        distributeurId: PRO-000042
     RuptureClotureeExemple:
       summary: Rupture clôturée de Réunionite forte (produit fictif)
       value:
@@ -510,9 +498,7 @@ components:
           - codeProduit: VMP-654321
             commentaire: Ordre-du-Jourex 5 mg, posologie divisée par deux, efficacité comparable sur les réunions de moins d'une heure.
         statut: CLOTUREE
-        distributeurId: DIST-0007
-        creeLe: '2026-08-01T09:00:00Z'
-        modifieLe: '2026-09-12T16:45:10Z'
+        distributeurId: PRO-000007
     PageRupturesExemple:
       summary: Première page, filtrée sur la Côte du Timeout
       value:
@@ -528,9 +514,7 @@ components:
               - codeProduit: VMP-200200
                 commentaire: Procrastinol 20 mg LP — une prise par jour.
             statut: EN_COURS
-            distributeurId: DIST-0042
-            creeLe: '2026-10-02T07:15:00Z'
-            modifieLe: '2026-10-19T14:02:31Z'
+            distributeurId: PRO-000042
           - id: 5b6c7d8e-9f0a-4b1c-9d2e-3f4a5b6c7d8e
             codeProduit: VMP-504504
             dateDebut: '2026-09-18'
@@ -540,9 +524,7 @@ components:
             regions: [COTE_DU_TIMEOUT, PROVINCE_DU_TICKET_OUVERT]
             alternatives: []
             statut: EN_COURS
-            distributeurId: DIST-0013
-            creeLe: '2026-09-18T11:30:00Z'
-            modifieLe: '2026-09-18T11:30:00Z'
+            distributeurId: PRO-000013
         page: 0
         size: 20
         totalElements: 2

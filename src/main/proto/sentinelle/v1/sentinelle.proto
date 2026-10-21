@@ -41,8 +41,6 @@
 //   chemin d'import supplémentaires pour un seul type. La chaîne ISO-8601 est
 //   triable lexicographiquement, lisible dans les journaux et identique au
 //   format `date` d'OpenAPI utilisé par la surface REST.
-//   Les horodatages techniques (création, mise à jour) sont en revanche de
-//   vrais instants : google.protobuf.Timestamp (fourni par protobuf-java).
 //
 // TABLE DE CORRESPONDANCE ERREURS -> CODES gRPC
 //   L'ordre d'évaluation est celui du tableau (authentification d'abord, puis
@@ -81,17 +79,16 @@
 //     sans doublon.
 //   - Alternatives : 0 à 20 ; chaque code alternatif respecte le format
 //     produit, est différent du produit en rupture, et n'apparaît qu'une fois.
-//   - Commentaire d'alternative : optionnel, 280 caractères Unicode (points de
-//     code) au maximum après suppression des espaces de début et de fin ;
-//     caractères de contrôle interdits (hors saut de ligne).
+//   - Commentaire d'alternative : optionnel, 280 unités UTF-16 au maximum
+//     (et non points de code : certains caractères hors plan multilingue de
+//     base comptent pour deux) après suppression des espaces de début et de
+//     fin ; aucun caractère de contrôle (saut de ligne compris).
 //   - Valeur d'enum inconnue (numéro non défini) : traitée comme UNSPECIFIED.
 // =============================================================================
 
 syntax = "proto3";
 
 package vd.affsn.sentinelle.v1;
-
-import "google/protobuf/timestamp.proto";
 
 option java_package = "vd.affsn.sentinelle.grpc.v1";
 option java_multiple_files = true;
@@ -173,7 +170,7 @@ message Alternative {
   string code_produit = 1;
 
   // Commentaire libre (posologie équivalente, conditionnement, disponibilité…).
-  // Optionnel, 280 caractères Unicode maximum, après suppression des espaces
+  // Optionnel, 280 unités UTF-16 maximum, après suppression des espaces
   // de début et de fin. Aucune donnée patient.
   string commentaire = 2;
 }
@@ -208,9 +205,9 @@ message Rupture {
   // serveur (information de sortie, jamais d'entrée).
   string distributeur_id = 10;
 
-  // Horodatages techniques (instants UTC).
-  google.protobuf.Timestamp cree_le = 11;
-  google.protobuf.Timestamp modifie_le = 12;
+  // Champs retirés (horodatages techniques hors modèle) : numéros et noms réservés.
+  reserved 11, 12;
+  reserved "cree_le", "modifie_le";
 }
 
 // -----------------------------------------------------------------------------

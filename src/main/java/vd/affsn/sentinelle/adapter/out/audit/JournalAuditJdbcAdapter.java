@@ -203,13 +203,34 @@ public class JournalAuditJdbcAdapter implements AuditPort {
         private long derniereSequenceEcrite = -1L;
     }
 
-    /** Libère le verrou après commit ou rollback, dans le thread de la transaction. */
+    /**
+     * Libère le verrou après commit ou rollback, dans le thread de la transaction.
+     *
+     * <p>Lie aussi l'état à l'identité de la transaction : Spring ne suspend pas d'elle-même une
+     * ressource liée sous une clé ad hoc ({@code cleRessource}) quand une transaction
+     * {@code REQUIRES_NEW} (ou {@code NOT_SUPPORTED}) suspend la transaction courante ; il appelle
+     * seulement {@link #suspend()} / {@link #resume()} sur ses synchronisations. Sans délier la
+     * ressource ici, la transaction interne la retrouverait, croirait le verrou tenu pour elle,
+     * lirait la dernière entrée committée sans voir celle (non committée) de l'englobante, forkerait
+     * la chaîne et partagerait l'état de séquence de l'englobante. Ressource déliée, la transaction
+     * interne voit le verrou tenu par le thread sans ressource et est refusée.
+     */
     private final class LiberationVerrou implements TransactionSynchronization {
 
         private final EtatTransaction etat;
 
         private LiberationVerrou(EtatTransaction etat) {
             this.etat = etat;
+        }
+
+        @Override
+        public void suspend() {
+            TransactionSynchronizationManager.unbindResourceIfPossible(cleRessource);
+        }
+
+        @Override
+        public void resume() {
+            TransactionSynchronizationManager.bindResource(cleRessource, etat);
         }
 
         @Override

@@ -6,10 +6,13 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -51,9 +54,28 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     ResponseEntity<ProblemDetail> inattendue(Exception e) {
+        if (e instanceof ErrorResponse porteur && !porteur.getStatusCode().is5xxServerError()) {
+            return statutPorte(porteur);
+        }
         LOG.error("Erreur inattendue lors du traitement d'une requête REST", e);
         return reponse(HttpStatus.INTERNAL_SERVER_ERROR, "erreur-interne", "Erreur interne",
                 "Une erreur interne est survenue.");
+    }
+
+    /**
+     * Exceptions Spring MVC portant déjà leur statut HTTP (404, 405, 406, 415...) : on respecte ce
+     * statut et les en-têtes fournis (ex. Allow), avec un corps générique sans écho de la requête.
+     */
+    private static ResponseEntity<ProblemDetail> statutPorte(ErrorResponse porteur) {
+        HttpStatusCode code = porteur.getStatusCode();
+        LOG.debug("Requête REST rejetée par Spring MVC avec le statut {}", code.value(), (Throwable) porteur);
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(code, "La requête ne peut pas être traitée.");
+        pd.setType(URI.create(BASE + "requete-invalide"));
+        pd.setTitle("Requête invalide");
+        HttpHeaders entetes = new HttpHeaders();
+        entetes.putAll(porteur.getHeaders());
+        entetes.setContentType(MediaType.APPLICATION_PROBLEM_JSON);
+        return ResponseEntity.status(code).headers(entetes).body(pd);
     }
 
     private static ResponseEntity<ProblemDetail> validation(String detail, List<ViolationDto> violations) {

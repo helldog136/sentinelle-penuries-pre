@@ -1,0 +1,11 @@
+# Profil démo : H2 en mémoire, mode PostgreSQL, migrations additionnelles de démonstration.
+spring:
+  datasource:
+    url: jdbc:h2:mem:sentinelle-demo;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+  flyway:
+    enabled: true
+    locations:
+      - classpath:db/migration
+      - classpath:db/demo

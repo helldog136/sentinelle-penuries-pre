@@ -52,7 +52,37 @@ Le rapport de couverture JaCoCo est généré après les tests. Ouvrez-le ici :
 target/site/jacoco/index.html
 ```
 
-En production, la clé publique de vérification des jetons doit être fournie par variable d'environnement. Sans elle, le service refuse de démarrer, comme il se doit (voir ADR-002).
+Hors profil `test`, la clé publique de vérification des jetons, l'émetteur et l'audience doivent être fournis par variables d'environnement. Sans eux, le service refuse de démarrer, comme il se doit (voir ADR-002).
+
+Pour lancer la démo locale, générer les clés de démonstration et activer les adaptateurs : [docs/DEMARRAGE.md](docs/DEMARRAGE.md).
+
+## État du projet
+
+Le domaine, les services d'application, les migrations, la sécurité JWT, les adaptateurs gRPC et REST, le job batch de l'indice de tension et le journal d'audit sont dans le code. Les adaptateurs REST et gRPC et le batch sont **désactivés par défaut** : ils s'activent par `sentinelle.<adaptateur>.enabled` (voir [DEMARRAGE](docs/DEMARRAGE.md)).
+
+Le projet compte 942 tests au dernier `./mvnw verify` (dont un ignoré, qui exige des droits non-root), pour environ 97 % de couverture de lignes hors code généré. Ils couvrent le domaine, la sécurité, gRPC, REST, la persistance, le batch, l'audit, et des scénarios de bout en bout. Les tests de persistance tournent sur H2 : un PostgreSQL réel n'a pas encore été testé.
+
+Limite connue de l'indice de tension : il lit le statut courant des ruptures, il ne rejoue pas leur historique (voir [ADR-003](docs/adr/ADR-003-audit-immuable-et-indice-de-tension.md)).
+
+## Structure du dépôt
+
+| Emplacement | Contenu |
+|---|---|
+| `src/main/java/.../domain/` | Modèle métier, règles, indice de tension. Sans Spring. |
+| `src/main/java/.../application/` | Ports (entrants et sortants) et services d'application. Sans Spring. |
+| `src/main/java/.../adapter/in/grpc/` | Ingestion des signalements par les distributeurs (gRPC), conditionnée par `sentinelle.grpc.enabled`. |
+| `src/main/java/.../adapter/in/rest/` | Consultation par les pharmaciens et prescripteurs (REST), conditionnée par `sentinelle.rest.enabled`. |
+| `src/main/java/.../adapter/out/persistence/` | Persistance JPA des ruptures. |
+| `src/main/java/.../adapter/out/audit/` | Journal d'audit à chaînage de hachage et vérification d'intégrité. |
+| `src/main/java/.../batch/` | Job Spring Batch `calculerTensionNocturne`, conditionné par `sentinelle.batch.enabled`. |
+| `src/main/java/.../security/` | Vérification des jetons JWT, rôles, chaîne de sécurité REST et gRPC. |
+| `src/main/java/.../config/` | Câblage des services et des horloges. |
+| `src/main/resources/config/` | `security.yml`, `grpc.yml`, `batch.yml` : références à l'environnement, sans secret. |
+| `src/main/resources/db/` | Migrations Flyway `V1` à `V3` (schéma) ; `db/demo/V1000` (données de démonstration). |
+| `src/main/proto/` | Contrat gRPC d'ingestion. |
+| `docs/` | ADR, contrat OpenAPI, guide de démarrage, catalogue de démonstration, suivi de délégation. |
+
+Les tests sont dans `src/test/java`, dans les mêmes paquets que le code qu'ils vérifient, plus `integration/` (bout en bout) et `ArchitectureTest` (ArchUnit).
 
 ## Une démo de développement agentique
 

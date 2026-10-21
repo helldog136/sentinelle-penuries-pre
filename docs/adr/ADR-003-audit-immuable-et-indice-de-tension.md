@@ -45,7 +45,7 @@ Les régions de référence de la Valdarie sont : Haute-Paperasse, Basse-Validat
 
 **Définitions.**
 
-- Une rupture est **prise en compte** à une date de référence `D` si son statut est `EN_COURS` à cette date et si elle touche la région considérée.
+- Une rupture est **prise en compte** à une date de référence `D` si son statut est `EN_COURS` au moment du calcul (statut courant de la rupture, voir la limite connue dans Conséquences), si sa date de début n'est pas postérieure à `D`, et si elle touche la région considérée.
 - Le **nombre de jours écoulés** d'une rupture est `jours_écoulés = max(0, D − date_début)`, en jours entiers, où `date_début` est la date de début de la rupture.
 - Le **poids** d'une rupture prise en compte est `poids = 1 + jours_écoulés / 7`.
 - L'**indice de région** est la **somme des poids** des ruptures prises en compte pour cette région.
@@ -55,9 +55,12 @@ Les régions de référence de la Valdarie sont : Haute-Paperasse, Basse-Validat
 
 **Traitement.**
 
-- Le calcul est un **job Spring Batch nocturne**, exécuté à une date de référence explicite (par défaut, la date du jour d'exécution, surchargeable pour rejouer un calcul).
+- Le calcul est un **job Spring Batch nocturne**, exécuté à une date de référence explicite. Le déclenchement planifié utilise la date du jour fournie par l'horloge de l'application. Le lanceur accepte une date quelconque (`LanceurCalculTension.lancer`), mais aucun point d'entrée externe ne permet aujourd'hui de rejouer une autre date.
+- Le paramètre `dateReference` est au format `AAAA-MM-JJ` et doit être une date calendaire réelle. Le paramètre `run.id`, s'il est fourni, doit être un entier long (`Long`) strictement positif ; toute autre valeur est refusée avant la création de l'instance.
 - Le résultat est écrit dans un **fichier de notifications**. Son écriture est **atomique** : le contenu est d'abord écrit dans un fichier temporaire situé dans le même répertoire, puis déplacé sur le nom définitif par un renommage atomique. Un lecteur ne voit jamais un fichier partiel.
-- Le job est relançable : une exécution interrompue puis relancée à la même date de référence produit le même fichier.
+- Le répertoire de sortie (`sentinelle.batch.notifications.repertoire`) n'a **aucun défaut** : il est obligatoire quand le job est activé et doit être un chemin absolu. S'il n'existe pas, il est créé en `rwx------` (propriétaire seul) sur un système POSIX. Le fichier est créé en `rw-r-----`.
+- Le job est relançable. Une relance pour la même date de référence crée une **nouvelle instance** de job (incrémenteur `run.id`) et **remplace le fichier du jour** (`notifications-tension-AAAA-MM-JJ.json`). Elle ne produit le **même contenu** que si les données n'ont pas changé entre-temps. Le calcul n'ayant pas d'état intermédiaire, une exécution interrompue est recalculée en entier.
+- Les échecs sont journalisés en **ERROR** par la planification : job en statut `FAILED`, ou exception au lancement ou à la lecture de l'horloge. L'exception n'est pas propagée et la planification suivante reste active.
 
 ### Alternatives écartées
 
@@ -65,6 +68,6 @@ Aucune alternative de calcul n'a été retenue : la formule est imposée par le 
 
 ### Conséquences
 
-- Le calcul dépend de la date de référence : il est reproductible pour une date donnée, mais l'indice d'aujourd'hui n'est pas l'indice d'hier recalculé à la volée.
+- **Limite connue : le calcul ne rejoue pas l'historique des statuts.** Le domaine (`Rupture#estActiveLe`) et la requête de lecture des ruptures actives utilisent le **statut courant** de chaque rupture. Une rupture clôturée **après** une date `D` est donc ignorée lors d'un rejeu de `D`, alors qu'elle était `EN_COURS` à `D`. Le calcul ne lit pas l'historique des statuts : rejouer une date passée ne reproduit pas forcément l'indice calculé à l'époque. Le calcul est déterministe pour un état donné des données ; il n'est pas reproductible dans le temps. Un correctif (conservation de l'historique des statuts) relève d'une décision ultérieure, non prise ici.
 - Une rupture multi-régions contribue à plusieurs indices ; la somme des indices régionaux n'est donc pas le nombre de ruptures. Ce point doit être explicité auprès des destinataires.
 - Le choix de la sortie fichier impose une politique de rétention et de nommage des fichiers, à définir avec les destinataires.

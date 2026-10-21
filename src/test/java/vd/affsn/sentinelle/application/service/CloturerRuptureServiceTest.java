@@ -161,4 +161,12 @@ class CloturerRuptureServiceTest {
 
         assertThat(journal.appels).containsExactly("save", "audit");
     }
+
+    @Test
+    void non_declarant_avec_date_future_recoit_acces_refuse_sans_save_ni_audit() {
+        assertThatThrownBy(() -> service.cloturer(ACTEUR_B, new Commande(existante.id(), AUJOURDHUI.plusDays(1))))
+                .isInstanceOf(AccesRefuseException.class);
+
+        assertThat(journal.appels).isEmpty();
+    }
 }

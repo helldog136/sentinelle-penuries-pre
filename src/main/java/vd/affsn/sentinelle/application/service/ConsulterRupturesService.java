@@ -6,7 +6,6 @@ import vd.affsn.sentinelle.application.port.in.RuptureVue;
 import vd.affsn.sentinelle.application.port.out.RuptureRepository;
 import vd.affsn.sentinelle.domain.model.Acteur;
 
-/** STUB (phase A du TDD) : aucune logique, l'implémentation viendra en phase B. */
 public class ConsulterRupturesService implements ConsulterRupturesUseCase {
 
     private final RuptureRepository ruptures;
@@ -17,6 +16,7 @@ public class ConsulterRupturesService implements ConsulterRupturesUseCase {
 
     @Override
     public Page<RuptureVue> consulter(Acteur acteur, Critere critere) {
-        throw new UnsupportedOperationException("à implémenter (phase B)");
+        return ruptures.rechercherEnCours(critere.region(), critere.produit(), critere.pagination())
+                .map(RuptureVue::depuis);
     }
 }

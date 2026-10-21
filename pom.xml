@@ -35,6 +35,12 @@
     <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
     <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
     <maven-wrapper-plugin.version>3.3.4</maven-wrapper-plugin.version>
+    <pitest-maven.version>1.17.4</pitest-maven.version>
+    <pitest-junit5-plugin.version>1.2.1</pitest-junit5-plugin.version>
+    <!-- PIT à la demande, surchargeables : -Dpit.targetClasses=... -Dpit.targetTests=... -->
+    <pit.targetClasses>vd.affsn.sentinelle.batch.*,vd.affsn.sentinelle.adapter.out.audit.*</pit.targetClasses>
+    <pit.targetTests>vd.affsn.sentinelle.batch.*,vd.affsn.sentinelle.adapter.out.audit.*</pit.targetTests>
+    <pit.threads>2</pit.threads>
     <!-- Rappel : aucun seuil de couverture pour l'instant. Oui, c'est volontaire. Pour l'instant. -->
   </properties>
 
@@ -212,6 +218,9 @@
             <exclude>**/*OuterClass*</exclude>
             <exclude>**/*Grpc.class</exclude>
             <exclude>**/*Grpc$*.class</exclude>
+            <!-- Tout le package du code généré (java_package = vd.affsn.sentinelle.grpc.v1 : Rupture, Region,
+                 MotifRupture...). Le code écrit à la main vit sous adapter/in/grpc et n'est pas concerné. -->
+            <exclude>vd/affsn/sentinelle/grpc/**</exclude>
           </excludes>
         </configuration>
         <executions>
@@ -229,6 +238,41 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+
+      <!-- Tests de mutation, À LA DEMANDE uniquement (aucune <executions>, rien dans le cycle de vie) :
+           ./mvnw org.pitest:pitest-maven:mutationCoverage [-Dpit.targetClasses=... -Dpit.targetTests=...]
+           Rapport : target/pit-reports. Le goal est lancé seul : prepare-agent de JaCoCo ne s'exécute pas,
+           donc la propriété argLine (agent JaCoCo) n'est pas injectée dans les JVM de PIT. -->
+      <plugin>
+        <groupId>org.pitest</groupId>
+        <artifactId>pitest-maven</artifactId>
+        <version>${pitest-maven.version}</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.pitest</groupId>
+            <artifactId>pitest-junit5-plugin</artifactId>
+            <version>${pitest-junit5-plugin.version}</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <targetClasses>
+            <param>${pit.targetClasses}</param>
+          </targetClasses>
+          <targetTests>
+            <param>${pit.targetTests}</param>
+          </targetTests>
+          <threads>${pit.threads}</threads>
+          <timeoutConstant>8000</timeoutConstant>
+          <timeoutFactor>1.5</timeoutFactor>
+          <outputFormats>
+            <outputFormat>HTML</outputFormat>
+            <outputFormat>XML</outputFormat>
+          </outputFormats>
+          <reportsDirectory>${project.build.directory}/pit-reports</reportsDirectory>
+          <timestampedReports>false</timestampedReports>
+          <failWhenNoMutations>false</failWhenNoMutations>
+        </configuration>
       </plugin>
 
       <plugin>

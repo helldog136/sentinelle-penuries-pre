@@ -1,0 +1,22 @@
+# Configuration de l'ingestion gRPC (écriture des signalements, rôle DISTRIBUTEUR).
+sentinelle:
+  grpc:
+    # Désactivé par défaut : les cas d'usage ne sont câblés qu'à l'intégration.
+    enabled: ${SENTINELLE_GRPC_ENABLED:false}
+
+grpc:
+  server:
+    # Aucun message entrant au-delà de 64 Kio (64KB = 64 x 1024 octets pour Spring) (les requêtes sont très petites).
+    max-inbound-message-size: 64KB
+    # Port configurable ; défaut hors des ports usuels (8080, 9090 Prometheus, 50051 exemples gRPC).
+    port: ${SENTINELLE_GRPC_PORT:50551}
+
+---
+# Profil test : aucun port réseau (-1 = pas d'écoute TCP, seul l'in-process reste possible).
+spring:
+  config:
+    activate:
+      on-profile: test
+grpc:
+  server:
+    port: -1

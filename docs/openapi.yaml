@@ -1,0 +1,558 @@
+openapi: 3.0.3
+info:
+  title: Sentinelle — API de consultation des ruptures
+  version: 1.0.0
+  description: |
+    Surface de **lecture** de Sentinelle, service fictif de l'Agence Fédérale
+    Fictive de Santé Numérique (AFFSN) de Valdarie. Projet entièrement fictif :
+    produits, régions et organismes sont imaginaires.
+
+    **Accès** : rôles `PHARMACIEN` et `PRESCRIPTEUR` uniquement (ADR-002).
+    Un jeton valide portant le rôle `DISTRIBUTEUR` reçoit **403** : les
+    distributeurs écrivent via gRPC (`vd.affsn.sentinelle.v1.SignalementService`)
+    et n'ont pas accès à la lecture REST.
+
+    **Versionnement** : version majeure dans le chemin (`/api/v1`). Ajouts de
+    champs ou de paramètres optionnels compatibles dans v1 ; les clients doivent
+    ignorer les champs inconnus. Toute rupture de compatibilité donne `/api/v2`.
+
+    **Dates** : les dates métier sont des dates calendaires ISO-8601
+    `AAAA-MM-JJ` (format OpenAPI `date`), sans heure ni fuseau, identiques à
+    la représentation du contrat gRPC. Les horodatages techniques sont des
+    instants `date-time` en UTC.
+
+    **Erreurs** : toutes les erreurs suivent la RFC 7807
+    (`application/problem+json`).
+
+    **Aucune donnée patient** n'est exposée ni acceptée par cette API.
+  contact:
+    name: Bureau des Ruptures — AFFSN (fictif)
+    email: sentinelle@affsn.example
+
+servers:
+  - url: https://sentinelle.affsn.example
+    description: Environnement fictif
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Ruptures
+    description: Consultation des ruptures en cours.
+  - name: Produits
+    description: Alternatives proposées pour un produit en rupture.
+
+paths:
+  /api/v1/ruptures:
+    get:
+      tags: [Ruptures]
+      operationId: listerRupturesEnCours
+      summary: Lister les ruptures en cours
+      description: |
+        Renvoie les ruptures au statut `EN_COURS`, paginées.
+
+        **Tri stable et fixe** : `dateDebut` décroissante (les plus récentes
+        d'abord), puis `id` croissant pour départager les égalités. L'ordre
+        est donc total et déterministe d'une page à l'autre (à données
+        constantes).
+
+        Les filtres se combinent par ET logique.
+      parameters:
+        - $ref: '#/components/parameters/Region'
+        - $ref: '#/components/parameters/Produit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: Page de ruptures en cours (éventuellement vide).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageRuptures'
+              examples:
+                pageAvecResultats:
+                  $ref: '#/components/examples/PageRupturesExemple'
+                pageVide:
+                  summary: Aucune rupture pour ces filtres
+                  value:
+                    contenu: []
+                    page: 0
+                    size: 20
+                    totalElements: 0
+                    totalPages: 0
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/v1/ruptures/{id}:
+    get:
+      tags: [Ruptures]
+      operationId: obtenirRupture
+      summary: Obtenir le détail d'une rupture
+      description: |
+        Renvoie une rupture par son identifiant, quel que soit son statut
+        (`EN_COURS` ou `CLOTUREE`), afin qu'un lien conservé reste résolvable
+        après clôture.
+      parameters:
+        - $ref: '#/components/parameters/RuptureId'
+      responses:
+        '200':
+          description: Détail de la rupture.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rupture'
+              examples:
+                ruptureActive:
+                  $ref: '#/components/examples/RuptureActiveExemple'
+                ruptureCloturee:
+                  $ref: '#/components/examples/RuptureClotureeExemple'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/v1/produits/{code}/alternatives:
+    get:
+      tags: [Produits]
+      operationId: listerAlternativesProduit
+      summary: Lister les alternatives d'un produit en rupture
+      description: |
+        Agrège les alternatives déclarées dans les ruptures **en cours** du
+        produit. Une même alternative citée par plusieurs ruptures apparaît une
+        fois par rupture (le commentaire peut différer). Tri : `codeProduit`
+        croissant puis `ruptureId` croissant.
+
+        Un produit sans rupture en cours (ou inconnu de Sentinelle) renvoie
+        **200 avec une liste vide** : Sentinelle ne tient pas de référentiel
+        produits, l'absence de rupture n'est pas une erreur.
+      parameters:
+        - $ref: '#/components/parameters/CodeProduitChemin'
+      responses:
+        '200':
+          description: Alternatives connues (éventuellement aucune).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlternativesProduit'
+              examples:
+                alternatives:
+                  $ref: '#/components/examples/AlternativesProduitExemple'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT RS256 émis par l'AFFSN (fictive), validé sur signature, `exp`,
+        `iss` et `aud` (ADR-002). Rôle requis : `PHARMACIEN` ou `PRESCRIPTEUR`.
+        Jeton absent, invalide ou expiré : 401. Rôle insuffisant
+        (dont `DISTRIBUTEUR`) : 403.
+
+  parameters:
+    Region:
+      name: region
+      in: query
+      required: false
+      description: Ne garder que les ruptures touchant cette région.
+      schema:
+        $ref: '#/components/schemas/Region'
+      example: COTE_DU_TIMEOUT
+    Produit:
+      name: produit
+      in: query
+      required: false
+      description: Ne garder que les ruptures de ce code produit.
+      schema:
+        $ref: '#/components/schemas/CodeProduit'
+    Page:
+      name: page
+      in: query
+      required: false
+      description: Numéro de page, à partir de 0.
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+        default: 0
+    Size:
+      name: size
+      in: query
+      required: false
+      description: Taille de page.
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 100
+        default: 20
+    RuptureId:
+      name: id
+      in: path
+      required: true
+      description: Identifiant UUID de la rupture.
+      schema:
+        $ref: '#/components/schemas/RuptureId'
+    CodeProduitChemin:
+      name: code
+      in: path
+      required: true
+      description: Code du produit en rupture.
+      schema:
+        $ref: '#/components/schemas/CodeProduit'
+
+  schemas:
+    CodeProduit:
+      type: string
+      pattern: '^VMP-\d{6}$'
+      description: Code produit du référentiel fictif de Valdarie.
+      example: VMP-404404
+
+    RuptureId:
+      type: string
+      format: uuid
+      description: Identifiant attribué par le serveur à la déclaration.
+      example: 3f8e2b1a-7c4d-4e9a-b2f0-5d6c7a8b9e01
+
+    DateCalendaire:
+      type: string
+      format: date
+      description: Date calendaire ISO-8601 `AAAA-MM-JJ`, sans heure ni fuseau (calendrier de Valdarie).
+      example: '2026-10-21'
+
+    Region:
+      type: string
+      description: |
+        Région de référence de la Valdarie. Correspondance gRPC : préfixe
+        `REGION_` (ex. `HAUTE_PAPERASSE` <-> `REGION_HAUTE_PAPERASSE`).
+      enum:
+        - HAUTE_PAPERASSE
+        - BASSE_VALIDATION
+        - PLATEAU_DU_LEGACY
+        - COTE_DU_TIMEOUT
+        - MARAIS_DE_LA_RECETTE
+        - PROVINCE_DU_TICKET_OUVERT
+
+    MotifRupture:
+      type: string
+      description: Correspondance gRPC avec le préfixe `MOTIF_RUPTURE_`.
+      enum:
+        - PRODUCTION
+        - LOGISTIQUE
+        - REGLEMENTAIRE
+        - DEMANDE
+
+    StatutRupture:
+      type: string
+      enum:
+        - EN_COURS
+        - CLOTUREE
+
+    Alternative:
+      type: object
+      required: [codeProduit]
+      properties:
+        codeProduit:
+          $ref: '#/components/schemas/CodeProduit'
+        commentaire:
+          type: string
+          maxLength: 500
+          nullable: true
+          description: Commentaire libre du distributeur (500 caractères au plus).
+
+    Rupture:
+      type: object
+      required:
+        - id
+        - codeProduit
+        - dateDebut
+        - motif
+        - regions
+        - alternatives
+        - statut
+        - creeLe
+        - modifieLe
+      properties:
+        id:
+          $ref: '#/components/schemas/RuptureId'
+        codeProduit:
+          $ref: '#/components/schemas/CodeProduit'
+        dateDebut:
+          $ref: '#/components/schemas/DateCalendaire'
+        dateFinEstimee:
+          allOf:
+            - $ref: '#/components/schemas/DateCalendaire'
+          nullable: true
+          description: Absente ou nulle si le distributeur ne l'a pas estimée.
+        dateFinEffective:
+          allOf:
+            - $ref: '#/components/schemas/DateCalendaire'
+          nullable: true
+          description: Renseignée uniquement si `statut` vaut `CLOTUREE`.
+        motif:
+          $ref: '#/components/schemas/MotifRupture'
+        regions:
+          type: array
+          minItems: 1
+          maxItems: 6
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/Region'
+        alternatives:
+          type: array
+          maxItems: 20
+          items:
+            $ref: '#/components/schemas/Alternative'
+        statut:
+          $ref: '#/components/schemas/StatutRupture'
+        distributeurId:
+          type: string
+          description: Identifiant de l'organisation distributrice déclarante (issu de son JWT).
+          example: DIST-0042
+        creeLe:
+          type: string
+          format: date-time
+          description: Instant de déclaration (UTC).
+        modifieLe:
+          type: string
+          format: date-time
+          description: Instant de dernière modification (UTC).
+
+    PageRuptures:
+      type: object
+      required: [contenu, page, size, totalElements, totalPages]
+      properties:
+        contenu:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rupture'
+        page:
+          type: integer
+          format: int32
+          minimum: 0
+        size:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+        totalElements:
+          type: integer
+          format: int64
+          minimum: 0
+        totalPages:
+          type: integer
+          format: int32
+          minimum: 0
+
+    AlternativeProposee:
+      allOf:
+        - $ref: '#/components/schemas/Alternative'
+        - type: object
+          required: [ruptureId]
+          properties:
+            ruptureId:
+              $ref: '#/components/schemas/RuptureId'
+
+    AlternativesProduit:
+      type: object
+      required: [codeProduit, alternatives]
+      properties:
+        codeProduit:
+          $ref: '#/components/schemas/CodeProduit'
+        alternatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/AlternativeProposee'
+
+    Probleme:
+      type: object
+      description: Détail d'erreur au format RFC 7807.
+      required: [type, title, status]
+      properties:
+        type:
+          type: string
+          format: uri-reference
+          description: URI identifiant le type de problème (`about:blank` si générique).
+          example: https://sentinelle.affsn.example/problemes/parametre-invalide
+        title:
+          type: string
+          description: Résumé lisible, stable pour un même `type`.
+        status:
+          type: integer
+          format: int32
+          minimum: 400
+          maximum: 599
+        detail:
+          type: string
+          description: Explication propre à cette occurrence (jamais de trace technique).
+        instance:
+          type: string
+          format: uri-reference
+          description: URI de la requête concernée.
+        violations:
+          type: array
+          description: Extension Sentinelle, présente sur les 400 de validation.
+          items:
+            type: object
+            required: [champ, message]
+            properties:
+              champ:
+                type: string
+              message:
+                type: string
+
+  responses:
+    BadRequest:
+      description: Paramètre invalide (format, borne, valeur d'énumération inconnue).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Probleme'
+          example:
+            type: https://sentinelle.affsn.example/problemes/parametre-invalide
+            title: Paramètre invalide
+            status: 400
+            detail: "Le paramètre 'size' doit être compris entre 1 et 100."
+            instance: /api/v1/ruptures?size=1000
+            violations:
+              - champ: size
+                message: doit être compris entre 1 et 100
+    Unauthorized:
+      description: Jeton absent, invalide ou expiré.
+      headers:
+        WWW-Authenticate:
+          schema:
+            type: string
+          example: Bearer error="invalid_token"
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Probleme'
+          example:
+            type: https://sentinelle.affsn.example/problemes/non-authentifie
+            title: Authentification requise
+            status: 401
+            detail: Le jeton est expiré. Même les tampons officiels ont une date de péremption.
+            instance: /api/v1/ruptures
+    Forbidden:
+      description: Rôle insuffisant (seuls PHARMACIEN et PRESCRIPTEUR peuvent lire).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Probleme'
+          example:
+            type: https://sentinelle.affsn.example/problemes/acces-refuse
+            title: Accès refusé
+            status: 403
+            detail: Le rôle DISTRIBUTEUR n'a pas accès à la consultation REST ; utilisez le service gRPC de signalement.
+            instance: /api/v1/ruptures
+    NotFound:
+      description: Ressource inexistante.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Probleme'
+          example:
+            type: https://sentinelle.affsn.example/problemes/rupture-introuvable
+            title: Rupture introuvable
+            status: 404
+            detail: Aucune rupture ne porte l'identifiant 00000000-0000-4000-8000-000000000404.
+            instance: /api/v1/ruptures/00000000-0000-4000-8000-000000000404
+
+  examples:
+    RuptureActiveExemple:
+      summary: Rupture active de Procrastinol (produit fictif)
+      value:
+        id: 3f8e2b1a-7c4d-4e9a-b2f0-5d6c7a8b9e01
+        codeProduit: VMP-404404
+        dateDebut: '2026-10-02'
+        dateFinEstimee: '2026-12-15'
+        dateFinEffective: null
+        motif: PRODUCTION
+        regions: [HAUTE_PAPERASSE, COTE_DU_TIMEOUT]
+        alternatives:
+          - codeProduit: VMP-200200
+            commentaire: Procrastinol 20 mg LP — même principe actif fictif, une prise par jour au lieu de deux (on peut remettre à demain).
+          - codeProduit: VMP-302302
+            commentaire: Reportine 10 mg, boîte de 30 ; stocks limités en Côte du Timeout.
+        statut: EN_COURS
+        distributeurId: DIST-0042
+        creeLe: '2026-10-02T07:15:00Z'
+        modifieLe: '2026-10-19T14:02:31Z'
+    RuptureClotureeExemple:
+      summary: Rupture clôturée de Réunionite forte (produit fictif)
+      value:
+        id: 9a1c0d2e-3b4f-4a5b-8c6d-7e8f9a0b1c2d
+        codeProduit: VMP-123456
+        dateDebut: '2026-08-01'
+        dateFinEstimee: '2026-09-30'
+        dateFinEffective: '2026-09-12'
+        motif: DEMANDE
+        regions: [MARAIS_DE_LA_RECETTE]
+        alternatives:
+          - codeProduit: VMP-654321
+            commentaire: Ordre-du-Jourex 5 mg, posologie divisée par deux, efficacité comparable sur les réunions de moins d'une heure.
+        statut: CLOTUREE
+        distributeurId: DIST-0007
+        creeLe: '2026-08-01T09:00:00Z'
+        modifieLe: '2026-09-12T16:45:10Z'
+    PageRupturesExemple:
+      summary: Première page, filtrée sur la Côte du Timeout
+      value:
+        contenu:
+          - id: 3f8e2b1a-7c4d-4e9a-b2f0-5d6c7a8b9e01
+            codeProduit: VMP-404404
+            dateDebut: '2026-10-02'
+            dateFinEstimee: '2026-12-15'
+            dateFinEffective: null
+            motif: PRODUCTION
+            regions: [HAUTE_PAPERASSE, COTE_DU_TIMEOUT]
+            alternatives:
+              - codeProduit: VMP-200200
+                commentaire: Procrastinol 20 mg LP — une prise par jour.
+            statut: EN_COURS
+            distributeurId: DIST-0042
+            creeLe: '2026-10-02T07:15:00Z'
+            modifieLe: '2026-10-19T14:02:31Z'
+          - id: 5b6c7d8e-9f0a-4b1c-9d2e-3f4a5b6c7d8e
+            codeProduit: VMP-504504
+            dateDebut: '2026-09-18'
+            dateFinEstimee: null
+            dateFinEffective: null
+            motif: LOGISTIQUE
+            regions: [COTE_DU_TIMEOUT, PROVINCE_DU_TICKET_OUVERT]
+            alternatives: []
+            statut: EN_COURS
+            distributeurId: DIST-0013
+            creeLe: '2026-09-18T11:30:00Z'
+            modifieLe: '2026-09-18T11:30:00Z'
+        page: 0
+        size: 20
+        totalElements: 2
+        totalPages: 1
+    AlternativesProduitExemple:
+      summary: Alternatives au Procrastinol (VMP-404404)
+      value:
+        codeProduit: VMP-404404
+        alternatives:
+          - codeProduit: VMP-200200
+            commentaire: Procrastinol 20 mg LP — une prise par jour au lieu de deux.
+            ruptureId: 3f8e2b1a-7c4d-4e9a-b2f0-5d6c7a8b9e01
+          - codeProduit: VMP-302302
+            commentaire: Reportine 10 mg, boîte de 30.
+            ruptureId: 3f8e2b1a-7c4d-4e9a-b2f0-5d6c7a8b9e01

@@ -56,7 +56,14 @@
 //   | Rupture inconnue (UUID bien formé mais absent)           | NOT_FOUND           |
 //   | Rupture appartenant à un autre distributeur              | PERMISSION_DENIED   |
 //   | Rupture déjà clôturée (mise à jour ou nouvelle clôture)  | FAILED_PRECONDITION |
+//   | Conflit de modification concurrente (MettreAJourRupture  | ABORTED             |
+//   | et CloturerRupture uniquement)                           |                     |
 //   | Erreur inattendue côté serveur                           | INTERNAL            |
+//
+//   ABORTED : une autre modification de la même rupture a été validée en
+//   même temps (verrou optimiste) ; aucune modification n'a été perdue ni
+//   appliquée pour cet appel. Le client peut relire la rupture et réessayer.
+//   Le message est fixe et générique, sans identifiant ni valeur.
 //
 //   Le message de statut (`Status.description`) est en français et, pour
 //   INVALID_ARGUMENT, liste les violations sous la forme `champ: raison`
@@ -113,7 +120,8 @@ service SignalementService {
   // Le code produit et la date de début sont immuables : pour les corriger,
   // clôturer la rupture et en déclarer une nouvelle.
   // Erreurs : UNAUTHENTICATED, PERMISSION_DENIED (rôle ou propriétaire),
-  // INVALID_ARGUMENT, NOT_FOUND, FAILED_PRECONDITION (déjà clôturée).
+  // INVALID_ARGUMENT, NOT_FOUND, FAILED_PRECONDITION (déjà clôturée),
+  // ABORTED (conflit de modification concurrente : relire et réessayer).
   rpc MettreAJourRupture(MettreAJourRuptureRequest) returns (MettreAJourRuptureResponse);
 
   // Clôture une rupture EN_COURS appartenant au distributeur du jeton.
@@ -121,7 +129,8 @@ service SignalementService {
   // jour renvoie FAILED_PRECONDITION (la clôture n'est pas idempotente, afin
   // que le client sache qu'il rejoue un appel déjà pris en compte).
   // Erreurs : UNAUTHENTICATED, PERMISSION_DENIED (rôle ou propriétaire),
-  // INVALID_ARGUMENT, NOT_FOUND, FAILED_PRECONDITION (déjà clôturée).
+  // INVALID_ARGUMENT, NOT_FOUND, FAILED_PRECONDITION (déjà clôturée),
+  // ABORTED (conflit de modification concurrente : relire et réessayer).
   rpc CloturerRupture(CloturerRuptureRequest) returns (CloturerRuptureResponse);
 }
 

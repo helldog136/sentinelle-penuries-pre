@@ -8,6 +8,7 @@ import net.devh.boot.grpc.server.service.GrpcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.dao.OptimisticLockingFailureException;
 import vd.affsn.sentinelle.application.port.in.CloturerRuptureUseCase;
 import vd.affsn.sentinelle.application.port.in.DeclarerRuptureUseCase;
 import vd.affsn.sentinelle.application.port.in.MettreAJourRuptureUseCase;
@@ -42,6 +43,8 @@ import vd.affsn.sentinelle.security.ActeurGrpcContext;
 public class SignalementGrpcService extends SignalementServiceGrpc.SignalementServiceImplBase {
 
     private static final Logger LOG = LoggerFactory.getLogger(SignalementGrpcService.class);
+
+    static final String MESSAGE_CONFLIT = "Conflit de modification, veuillez réessayer";
 
     private static final long JOURS_AVANT_DEBUT_MAX = 365;
     private static final long JOURS_APRES_DEBUT_MAX = 90;
@@ -169,10 +172,23 @@ public class SignalementGrpcService extends SignalementServiceGrpc.SignalementSe
             reponse.onCompleted();
         } catch (ExceptionMetier e) {
             reponse.onError(statut(e).asRuntimeException());
+        } catch (OptimisticLockingFailureException e) {
+            // Conflit normal de mise à jour concurrente (verrou optimiste, levé au commit) : le client
+            // peut relire et réessayer. Message fixe, sans cause, sans pile, sans donnée de la requête.
+            journaliserConflit(rpc);
+            reponse.onError(Status.ABORTED.withDescription(MESSAGE_CONFLIT).asRuntimeException());
         } catch (RuntimeException e) {
             // Aucun message ni pile : le type seul est journalisé (le message peut contenir des données).
             journaliser(rpc, e);
             reponse.onError(Status.INTERNAL.withDescription("Erreur interne").asRuntimeException());
+        }
+    }
+
+    private static void journaliserConflit(String rpc) {
+        try {
+            LOG.warn("Conflit de modification concurrente dans {}", rpc);
+        } catch (RuntimeException | LinkageError ignore) {
+            // rien d'autre à faire côté serveur
         }
     }
 

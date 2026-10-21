@@ -260,16 +260,19 @@ class TransactionAuditBoutEnBoutTest extends AbstractBoutEnBoutTest {
     }
 
     /**
-     * AMBIGUÏTÉ documentée (comportement actuel) : deux mises à jour concurrentes de la même rupture.
-     * La seconde à committer est refusée par le verrou optimiste (aucune mise à jour perdue, pas
-     * d'audit, verrou relâché), mais le client reçoit INTERNAL « Erreur interne » : le contrat gRPC ne
-     * prévoit aucun code pour un conflit de concurrence (ABORTED serait l'usage gRPC, cf. DELEGATION :
-     * « 409 à prévoir à l'intégration »).
+     * Deux mises à jour concurrentes de la même rupture : la seconde à committer est refusée par le
+     * verrou optimiste (aucune mise à jour perdue, pas d'audit, verrou relâché) et le client reçoit
+     * ABORTED (conflit normal, réessayable) avec un message fixe ; aucune ligne ERROR n'est journalisée.
      */
     @Test
-    void conflitDeMisesAJourConcurrentesAucuneMiseAJourPerdueMaisCodeInternal() throws Exception {
+    void conflitDeMisesAJourConcurrentesAucuneMiseAJourPerdueEtCodeAborted() throws Exception {
         Rupture r = grpc(jeton201()).declarerRupture(declarationSimple("VMP-000901", Region.REGION_HAUTE_PAPERASSE))
                 .getRupture();
+        var journaux = new ch.qos.logback.core.read.ListAppender<ch.qos.logback.classic.spi.ILoggingEvent>();
+        journaux.start();
+        var loggerRacine = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(
+                org.slf4j.Logger.ROOT_LOGGER_NAME);
+        loggerRacine.addAppender(journaux);
         var verrous = audit.suspendreLeProchainAppel();
         var executeur = java.util.concurrent.Executors.newSingleThreadExecutor();
         try {
@@ -292,8 +295,11 @@ class TransactionAuditBoutEnBoutTest extends AbstractBoutEnBoutTest {
             assertThat(echec).isNotNull();
             assertThat(echec.getCause()).isInstanceOf(StatusRuntimeException.class);
             Status statut = ((StatusRuntimeException) echec.getCause()).getStatus();
-            assertThat(statut.getCode()).isEqualTo(Status.Code.INTERNAL); // comportement actuel (ambigu)
-            assertThat(statut.getDescription()).isEqualTo("Erreur interne");
+            assertThat(statut.getCode()).isEqualTo(Status.Code.ABORTED);
+            assertThat(statut.getDescription()).isEqualTo("Conflit de modification, veuillez réessayer");
+            assertThat(statut.getCause()).isNull();
+            assertThat(journaux.list.stream().filter(e -> e.getLevel() == ch.qos.logback.classic.Level.ERROR))
+                    .isEmpty();
 
             assertThat(second.getRegionsList()).containsExactly(Region.REGION_MARAIS_DE_LA_RECETTE);
             var detail = getOk("/api/v1/ruptures/" + r.getId(), jetons.pharmacien());
@@ -304,6 +310,7 @@ class TransactionAuditBoutEnBoutTest extends AbstractBoutEnBoutTest {
             assertVerrouLibre();
             assertThat(verificateur.verifier().integre()).isTrue();
         } finally {
+            loggerRacine.detachAppender(journaux);
             verrous[1].countDown();
             executeur.shutdownNow();
         }

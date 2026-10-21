@@ -72,7 +72,9 @@
 //   - Dates : format strict `AAAA-MM-JJ`, date calendaire existante.
 //       * date_debut : dans [J − 365 jours ; J + 90 jours], J = date du jour
 //         (Valdarie) à la réception ;
-//       * date_fin_estimee (si présente) : >= date_debut et <= date_debut + 730 jours ;
+//       * date_fin_estimee (si présente) : >= date_debut et <= date_debut + 730 jours
+//         à la déclaration uniquement ; à la mise à jour, seule la règle
+//         >= date_debut enregistrée s'applique (voir MettreAJourRuptureRequest) ;
 //       * date_fin_effective (clôture) : >= date_debut et <= J.
 //   - Motif : valeur définie différente de MOTIF_RUPTURE_UNSPECIFIED.
 //   - Régions : 1 à 6 valeurs, toutes différentes de REGION_UNSPECIFIED,
@@ -197,6 +199,8 @@ message Rupture {
   // 1 à 6 régions distinctes, dans l'ordre croissant des numéros d'enum.
   repeated Region regions = 7;
 
+  // Triées par code produit alternatif croissant ; l'ordre de saisie n'est pas
+  // conservé.
   repeated Alternative alternatives = 8;
 
   StatutRupture statut = 9;
@@ -255,8 +259,10 @@ message MettreAJourRuptureRequest {
   // Obligatoire. UUID de la rupture.
   string id = 1;
 
-  // Optionnel. Mêmes règles qu'à la déclaration (par rapport à la date de
-  // début enregistrée). Absent = fin estimée effacée.
+  // Optionnel. À la MISE À JOUR, seule la règle `>= date de début enregistrée`
+  // est vérifiée (par le domaine, erreur INVALID_ARGUMENT) ; le plafond
+  // `<= date de début + 730 j` ne s'applique qu'à la DÉCLARATION. Absent =
+  // fin estimée effacée.
   optional string date_fin_estimee = 2;
 
   // Obligatoire, différent de MOTIF_RUPTURE_UNSPECIFIED.

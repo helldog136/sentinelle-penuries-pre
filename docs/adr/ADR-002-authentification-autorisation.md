@@ -25,7 +25,7 @@ Deux exigences guident la décision :
 
 - Une **paire de clés de test** est générée pour les tests. Elle est **marquée `TEST ONLY`** dans son en-tête et son nom de fichier, et n'est **committée que sous `src/test/resources`**.
 - En production, **la clé publique est fournie par variable d'environnement**. Si cette variable est absente ou invalide, **le démarrage échoue**. Il n'existe aucune clé de repli.
-- Aucune clé privée ne se trouve dans le dépôt, ni en test ni en production : Sentinelle ne signe pas de jetons.
+- Aucune clé privée de PRODUCTION ne se trouve dans le dépôt, et il n'existe aucune clé de repli (Sentinelle ne signe pas de jetons). Seule la paire de clés de TEST, générée, marquée `TEST ONLY` dans son nom de fichier et dans le README associé, et committée sous `src/test/resources/test-keys`, contient une clé privée, uniquement pour signer des jetons de test.
 
 **Rôles.** Trois rôles sont définis :
 
@@ -52,6 +52,6 @@ Deux exigences guident la décision :
 ## Conséquences
 
 - Le démarrage en production échoue sans clé publique : c'est voulu. Une erreur de configuration se voit immédiatement, pas à la première requête.
-- La clé de test est committée volontairement. Elle ne doit servir à rien d'autre qu'aux tests ; toute réutilisation hors `src/test` est une faute à signaler.
+- La clé de test est committée volontairement. Elle ne doit servir à rien d'autre qu'aux tests ; toute réutilisation hors `src/test` est une faute à signaler. Les clés de test ne protègent rien : leur clé privée étant dans le dépôt, elles ne doivent servir nulle part ailleurs.
 - Le rôle et l'identité sont portés par le jeton : révoquer un accès avant expiration suppose des jetons de durée courte. La durée de vie est fixée dans la configuration.
 - La règle de propriété est testée unitairement dans le domaine, et le câblage des deux surfaces est testé séparément, ce qui évite de tester deux fois la même règle.

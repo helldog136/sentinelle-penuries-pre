@@ -4,7 +4,6 @@ import java.util.List;
 
 /**
  * Rupture au format REST (schéma OpenAPI Rupture). Dates AAAA-MM-JJ en texte.
- * ECART SIGNALE : creeLe / modifieLe (requis par l'OpenAPI) absents car RuptureVue ne les porte pas.
  */
 public record RuptureDto(String id,
                          String codeProduit,

@@ -316,6 +316,9 @@ components:
         alternatives:
           type: array
           maxItems: 20
+          description: |
+            Triées par code produit alternatif croissant. L'ordre dans lequel
+            les alternatives ont été saisies n'est pas conservé.
           items:
             $ref: '#/components/schemas/Alternative'
         statut:
@@ -425,7 +428,9 @@ components:
               - champ: size
                 message: doit être compris entre 1 et 100
     Unauthorized:
-      description: Jeton absent, invalide ou expiré.
+      description: |
+        Jeton absent, invalide ou expiré. La raison du refus n'est jamais
+        révélée : le corps de la réponse est toujours le même message générique.
       headers:
         WWW-Authenticate:
           schema:
@@ -439,7 +444,7 @@ components:
             type: https://sentinelle.affsn.example/problemes/non-authentifie
             title: Authentification requise
             status: 401
-            detail: Le jeton est expiré. Même les tampons officiels ont une date de péremption.
+            detail: Authentification requise ou jeton invalide
             instance: /api/v1/ruptures
     Forbidden:
       description: Rôle insuffisant (seuls PHARMACIEN et PRESCRIPTEUR peuvent lire).

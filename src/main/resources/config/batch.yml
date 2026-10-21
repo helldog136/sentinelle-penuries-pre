@@ -11,7 +11,7 @@ spring:
 
 sentinelle:
   batch:
-    # Désactivé par défaut : le job dépend de ports (RuptureRepository, HorlogePort) encore sans implémentation.
+    # Désactivé par défaut : le job ne s'active que si enabled=true (RuptureRepository est implémenté par RuptureRepositoryAdapter ; HorlogePort par HorlogeSysteme, enregistrée par HorlogeParDefautRegistrar).
     enabled: false
     # Cron Spring à 6 champs (seconde minute heure jour mois jour-de-semaine) : 02:00 chaque jour.
     cron: "0 0 2 * * *"

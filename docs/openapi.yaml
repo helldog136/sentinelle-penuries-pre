@@ -271,9 +271,11 @@ components:
           $ref: '#/components/schemas/CodeProduit'
         commentaire:
           type: string
-          maxLength: 500
+          maxLength: 280
           nullable: true
-          description: Commentaire libre du distributeur (500 caractères au plus).
+          description: >-
+            Commentaire libre du distributeur (280 caractères Unicode au plus,
+            après suppression des espaces de début et de fin).
 
     Rupture:
       type: object

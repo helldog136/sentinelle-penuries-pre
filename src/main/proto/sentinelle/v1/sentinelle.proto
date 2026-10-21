@@ -81,7 +81,7 @@
 //     sans doublon.
 //   - Alternatives : 0 à 20 ; chaque code alternatif respecte le format
 //     produit, est différent du produit en rupture, et n'apparaît qu'une fois.
-//   - Commentaire d'alternative : optionnel, 500 caractères Unicode (points de
+//   - Commentaire d'alternative : optionnel, 280 caractères Unicode (points de
 //     code) au maximum après suppression des espaces de début et de fin ;
 //     caractères de contrôle interdits (hors saut de ligne).
 //   - Valeur d'enum inconnue (numéro non défini) : traitée comme UNSPECIFIED.
@@ -173,7 +173,8 @@ message Alternative {
   string code_produit = 1;
 
   // Commentaire libre (posologie équivalente, conditionnement, disponibilité…).
-  // Optionnel, 500 caractères Unicode maximum. Aucune donnée patient.
+  // Optionnel, 280 caractères Unicode maximum, après suppression des espaces
+  // de début et de fin. Aucune donnée patient.
   string commentaire = 2;
 }
 

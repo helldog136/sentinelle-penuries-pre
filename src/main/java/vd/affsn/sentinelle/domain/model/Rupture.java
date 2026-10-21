@@ -1,10 +1,17 @@
 package vd.affsn.sentinelle.domain.model;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+
+import vd.affsn.sentinelle.domain.exception.AccesRefuseException;
+import vd.affsn.sentinelle.domain.exception.RuptureDejaClotureeException;
+import vd.affsn.sentinelle.domain.exception.ValidationMetierException;
 
 /**
  * Agrégat « rupture d'approvisionnement » déclarée par un distributeur agréé.
@@ -32,8 +39,6 @@ import java.util.Set;
  *
  * <p>Activité : une rupture est active à une date si elle est {@code EN_COURS} et que son
  * début est antérieur ou égal à cette date. La fin estimée n'entre pas en compte.
- *
- * <p><b>STUB TDD (T0.2)</b> : fabriques et comportement à implémenter.
  */
 public final class Rupture {
 
@@ -56,14 +61,21 @@ public final class Rupture {
                     List<Alternative> alternatives,
                     StatutRupture statut,
                     LocalDate finEffective) {
-        this.id = id;
-        this.produit = produit;
-        this.declarant = declarant;
-        this.periode = periode;
-        this.motif = motif;
-        this.regions = regions;
-        this.alternatives = alternatives;
-        this.statut = statut;
+        this.id = obligatoire(id, "identifiant");
+        this.produit = obligatoire(produit, "produit");
+        this.declarant = obligatoire(declarant, "déclarant");
+        this.periode = obligatoire(periode, "période");
+        this.motif = obligatoire(motif, "motif");
+        this.regions = copieRegions(regions);
+        this.alternatives = copieAlternatives(alternatives, produit);
+        this.statut = obligatoire(statut, "statut");
+        if ((statut == StatutRupture.CLOTUREE) != (finEffective != null)) {
+            throw new ValidationMetierException(
+                    "Rupture : fin effective présente si et seulement si la rupture est clôturée");
+        }
+        if (finEffective != null && finEffective.isBefore(periode.debut())) {
+            throw new ValidationMetierException("Rupture : la fin effective ne peut pas précéder le début");
+        }
         this.finEffective = finEffective;
     }
 
@@ -78,7 +90,11 @@ public final class Rupture {
                                    Motif motif,
                                    Set<Region> regions,
                                    List<Alternative> alternatives) {
-        throw new UnsupportedOperationException("T0.2 : à implémenter");
+        if (acteur == null || acteur.role() != Role.DISTRIBUTEUR) {
+            throw new AccesRefuseException("Seul un distributeur peut déclarer une rupture");
+        }
+        return new Rupture(id, produit, acteur.distributeurRattache(), periode, motif, regions, alternatives,
+                StatutRupture.EN_COURS, null);
     }
 
     /**
@@ -94,7 +110,7 @@ public final class Rupture {
                                        List<Alternative> alternatives,
                                        StatutRupture statut,
                                        LocalDate finEffective) {
-        throw new UnsupportedOperationException("T0.2 : à implémenter");
+        return new Rupture(id, produit, declarant, periode, motif, regions, alternatives, statut, finEffective);
     }
 
     /**
@@ -106,16 +122,65 @@ public final class Rupture {
                                Motif nouveauMotif,
                                Set<Region> nouvellesRegions,
                                List<Alternative> nouvellesAlternatives) {
-        throw new UnsupportedOperationException("T0.2 : à implémenter");
+        verifierModifiablePar(acteur);
+        return new Rupture(id, produit, declarant, nouvellePeriode, nouveauMotif, nouvellesRegions,
+                nouvellesAlternatives, StatutRupture.EN_COURS, null);
     }
 
     /** Clôture la rupture en fixant sa fin effective (>= début). */
     public Rupture cloturer(Acteur acteur, LocalDate dateFinEffective) {
-        throw new UnsupportedOperationException("T0.2 : à implémenter");
+        verifierModifiablePar(acteur);
+        obligatoire(dateFinEffective, "fin effective");
+        return new Rupture(id, produit, declarant, periode, motif, regions, alternatives,
+                StatutRupture.CLOTUREE, dateFinEffective);
     }
 
     public boolean estActiveLe(LocalDate date) {
-        throw new UnsupportedOperationException("T0.2 : à implémenter");
+        return statut == StatutRupture.EN_COURS && periode.aCommenceLe(date);
+    }
+
+    /** Autorisation d'abord (déclarant uniquement), puis état (pas déjà clôturée). */
+    private void verifierModifiablePar(Acteur acteur) {
+        if (acteur == null || !acteur.agitPour(declarant)) {
+            throw new AccesRefuseException("Seul le distributeur déclarant peut modifier cette rupture");
+        }
+        if (statut == StatutRupture.CLOTUREE) {
+            throw new RuptureDejaClotureeException(id);
+        }
+    }
+
+    private static <T> T obligatoire(T valeur, String champ) {
+        if (valeur == null) {
+            throw new ValidationMetierException("Rupture : " + champ + " obligatoire");
+        }
+        return valeur;
+    }
+
+    private static Set<Region> copieRegions(Set<Region> regions) {
+        obligatoire(regions, "régions");
+        if (regions.isEmpty()) {
+            throw new ValidationMetierException("Rupture : au moins une région est requise");
+        }
+        Set<Region> copie = EnumSet.noneOf(Region.class);
+        for (Region region : regions) {
+            copie.add(obligatoire(region, "région"));
+        }
+        return Collections.unmodifiableSet(copie);
+    }
+
+    private static List<Alternative> copieAlternatives(List<Alternative> alternatives, CodeProduit produit) {
+        obligatoire(alternatives, "alternatives");
+        Set<CodeProduit> produitsVus = new HashSet<>();
+        for (Alternative alternative : alternatives) {
+            obligatoire(alternative, "alternative");
+            if (alternative.produit().equals(produit)) {
+                throw new ValidationMetierException("Rupture : une alternative ne peut pas être le produit en rupture");
+            }
+            if (!produitsVus.add(alternative.produit())) {
+                throw new ValidationMetierException("Rupture : deux alternatives pour le même produit");
+            }
+        }
+        return List.copyOf(alternatives);
     }
 
     public RuptureId id() {

@@ -1,8 +1,12 @@
 package vd.affsn.sentinelle.domain.tension;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+
+import vd.affsn.sentinelle.domain.exception.ValidationMetierException;
 
 import vd.affsn.sentinelle.domain.model.Region;
 
@@ -12,17 +16,26 @@ import vd.affsn.sentinelle.domain.model.Region;
  * <p>Invariants : date non nulle ; {@code parRegion} contient TOUTES les régions (les régions
  * absentes de la map fournie sont complétées à 0.0) ; valeurs finies et >= 0 ; la map exposée
  * est une copie non modifiable, itérée dans l'ordre de déclaration de {@link Region}.
- *
- * <p><b>STUB TDD (T0.2)</b> : validation et comportement à implémenter.
  */
 public record IndiceTension(LocalDate dateReference, Map<Region, Double> parRegion) {
 
     public IndiceTension {
-        // TODO T0.2 : validation, complétion à 0.0, copie EnumMap non modifiable
+        if (dateReference == null || parRegion == null) {
+            throw new ValidationMetierException("Indice de tension : date et valeurs obligatoires");
+        }
+        Map<Region, Double> complet = new EnumMap<>(Region.class);
+        for (Region region : Region.values()) {
+            Double valeur = parRegion.getOrDefault(region, 0.0);
+            if (valeur == null || !Double.isFinite(valeur) || valeur < 0) {
+                throw new ValidationMetierException("Indice de tension : valeur finie >= 0 attendue");
+            }
+            complet.put(region, valeur);
+        }
+        parRegion = Collections.unmodifiableMap(complet);
     }
 
     public double de(Region region) {
-        throw new UnsupportedOperationException("T0.2 : à implémenter");
+        return parRegion.get(region);
     }
 
     /**
@@ -30,6 +43,9 @@ public record IndiceTension(LocalDate dateReference, Map<Region, Double> parRegi
      * {@link Region}.
      */
     public List<Region> regionsAuDessusDe(SeuilTension seuil) {
-        throw new UnsupportedOperationException("T0.2 : à implémenter");
+        return parRegion.entrySet().stream()
+                .filter(entree -> seuil.estDepassePar(entree.getValue()))
+                .map(Map.Entry::getKey)
+                .toList();
     }
 }

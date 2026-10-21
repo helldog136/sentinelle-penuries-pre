@@ -1,8 +1,12 @@
 package vd.affsn.sentinelle.domain.tension;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
+import java.util.EnumMap;
+import java.util.Map;
 
+import vd.affsn.sentinelle.domain.model.Region;
 import vd.affsn.sentinelle.domain.model.Rupture;
 
 /**
@@ -20,17 +24,25 @@ import vd.affsn.sentinelle.domain.model.Rupture;
  *       rupture touchant plusieurs régions compte (avec son poids entier) dans chacune ;</li>
  *   <li>les six régions figurent dans le résultat (0.0 si aucune rupture).</li>
  * </ul>
- *
- * <p><b>STUB TDD (T0.2)</b> : à implémenter.
  */
 public final class CalculateurTension {
 
     public IndiceTension calculer(Collection<Rupture> ruptures, LocalDate dateReference) {
-        throw new UnsupportedOperationException("T0.2 : à implémenter");
+        Map<Region, Double> parRegion = new EnumMap<>(Region.class);
+        for (Rupture rupture : ruptures) {
+            if (rupture.estActiveLe(dateReference)) {
+                double poids = poids(rupture, dateReference);
+                for (Region region : rupture.regions()) {
+                    parRegion.merge(region, poids, Double::sum);
+                }
+            }
+        }
+        return new IndiceTension(dateReference, parRegion);
     }
 
     /** Poids d'une rupture à la date de référence, sans filtrage d'activité. */
     public double poids(Rupture rupture, LocalDate dateReference) {
-        throw new UnsupportedOperationException("T0.2 : à implémenter");
+        long joursEcoules = Math.max(0, ChronoUnit.DAYS.between(rupture.periode().debut(), dateReference));
+        return 1 + joursEcoules / 7.0;
     }
 }

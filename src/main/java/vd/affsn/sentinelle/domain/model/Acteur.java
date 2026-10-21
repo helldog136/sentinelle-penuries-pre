@@ -2,6 +2,8 @@ package vd.affsn.sentinelle.domain.model;
 
 import java.util.Optional;
 
+import vd.affsn.sentinelle.domain.exception.ValidationMetierException;
+
 /**
  * Acteur authentifié qui appelle un cas d'usage. Immuable.
  *
@@ -11,16 +13,23 @@ import java.util.Optional;
  *   <li>{@code distributeurRattache} : obligatoire pour {@link Role#DISTRIBUTEUR}, interdit
  *       ({@code null}) pour les autres rôles.</li>
  * </ul>
- *
- * <p><b>STUB TDD (T0.2)</b> : validation et comportement à implémenter.
  */
 public record Acteur(String sujet, Role role, IdentifiantDistributeur distributeurRattache) {
 
     public static final int LONGUEUR_MAX_SUJET = 128;
 
     public Acteur {
-        // TODO T0.2 : sujet null/blanc/trop long, role null, cohérence rôle/rattachement
-        //             -> ValidationMetierException
+        if (sujet == null || sujet.isBlank() || sujet.length() > LONGUEUR_MAX_SUJET) {
+            throw new ValidationMetierException(
+                    "Acteur : sujet obligatoire, au plus " + LONGUEUR_MAX_SUJET + " caractères");
+        }
+        if (role == null) {
+            throw new ValidationMetierException("Acteur : rôle obligatoire");
+        }
+        if ((role == Role.DISTRIBUTEUR) != (distributeurRattache != null)) {
+            throw new ValidationMetierException(
+                    "Acteur : rattachement distributeur obligatoire pour DISTRIBUTEUR et interdit sinon");
+        }
     }
 
     public static Acteur distributeur(String sujet, IdentifiantDistributeur identifiant) {
@@ -36,11 +45,11 @@ public record Acteur(String sujet, Role role, IdentifiantDistributeur distribute
     }
 
     public Optional<IdentifiantDistributeur> identifiantDistributeur() {
-        throw new UnsupportedOperationException("T0.2 : à implémenter");
+        return Optional.ofNullable(distributeurRattache);
     }
 
     /** Vrai si l'acteur a le rôle DISTRIBUTEUR et est rattaché à cet identifiant précis. */
     public boolean agitPour(IdentifiantDistributeur distributeur) {
-        throw new UnsupportedOperationException("T0.2 : à implémenter");
+        return role == Role.DISTRIBUTEUR && distributeurRattache.equals(distributeur);
     }
 }

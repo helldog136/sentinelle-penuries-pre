@@ -2,16 +2,18 @@ package vd.affsn.sentinelle.domain.model;
 
 import java.util.UUID;
 
+import vd.affsn.sentinelle.domain.exception.ValidationMetierException;
+
 /**
  * Identifiant technique d'une rupture (UUID). {@link #toString()} renvoie la forme canonique
  * de l'UUID.
- *
- * <p><b>STUB TDD (T0.2)</b> : validation, {@link #depuis(String)} et {@code toString} à implémenter.
  */
 public record RuptureId(UUID valeur) {
 
     public RuptureId {
-        // TODO T0.2 : null -> ValidationMetierException
+        if (valeur == null) {
+            throw new ValidationMetierException("Identifiant de rupture obligatoire");
+        }
     }
 
     public static RuptureId generer() {
@@ -20,6 +22,21 @@ public record RuptureId(UUID valeur) {
 
     /** Analyse la forme textuelle canonique ; toute valeur invalide -> ValidationMetierException. */
     public static RuptureId depuis(String texte) {
-        throw new UnsupportedOperationException("T0.2 : à implémenter");
+        if (texte != null) {
+            try {
+                UUID uuid = UUID.fromString(texte);
+                if (uuid.toString().equalsIgnoreCase(texte)) {
+                    return new RuptureId(uuid);
+                }
+            } catch (IllegalArgumentException e) {
+                // traité ci-dessous
+            }
+        }
+        throw new ValidationMetierException("Identifiant de rupture invalide : UUID canonique attendu");
+    }
+
+    @Override
+    public String toString() {
+        return valeur.toString();
     }
 }

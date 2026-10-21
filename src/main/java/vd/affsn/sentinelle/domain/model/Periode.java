@@ -3,18 +3,23 @@ package vd.affsn.sentinelle.domain.model;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import vd.affsn.sentinelle.domain.exception.ValidationMetierException;
+
 /**
  * Période d'une rupture : date de début obligatoire, date de fin <em>estimée</em> optionnelle
  * ({@code null} = inconnue). La fin estimée ne peut pas précéder le début (elle peut l'égaler).
  * La fin <em>effective</em> n'est pas portée ici : elle est fixée par la clôture de la
  * {@link Rupture}.
- *
- * <p><b>STUB TDD (T0.2)</b> : validation et comportement à implémenter.
  */
 public record Periode(LocalDate debut, LocalDate finEstimee) {
 
     public Periode {
-        // TODO T0.2 : debut null ou finEstimee < debut -> ValidationMetierException
+        if (debut == null) {
+            throw new ValidationMetierException("Période : date de début obligatoire");
+        }
+        if (finEstimee != null && finEstimee.isBefore(debut)) {
+            throw new ValidationMetierException("Période : la fin estimée ne peut pas précéder le début");
+        }
     }
 
     public static Periode aPartirDu(LocalDate debut) {
@@ -26,11 +31,11 @@ public record Periode(LocalDate debut, LocalDate finEstimee) {
     }
 
     public Optional<LocalDate> finEstimeeOptionnelle() {
-        throw new UnsupportedOperationException("T0.2 : à implémenter");
+        return Optional.ofNullable(finEstimee);
     }
 
     /** Vrai si la date donnée est postérieure ou égale au début. */
     public boolean aCommenceLe(LocalDate date) {
-        throw new UnsupportedOperationException("T0.2 : à implémenter");
+        return !date.isBefore(debut);
     }
 }

@@ -256,12 +256,10 @@
           </dependency>
         </dependencies>
         <configuration>
-          <targetClasses>
-            <param>${pit.targetClasses}</param>
-          </targetClasses>
-          <targetTests>
-            <param>${pit.targetTests}</param>
-          </targetTests>
+          <!-- Valeur directe, SANS <param> imbriqué : Maven découpe la chaîne sur les virgules
+               pour une collection ; un <param> unique reçoit le motif entier (virgule comprise). -->
+          <targetClasses>${pit.targetClasses}</targetClasses>
+          <targetTests>${pit.targetTests}</targetTests>
           <threads>${pit.threads}</threads>
           <timeoutConstant>8000</timeoutConstant>
           <timeoutFactor>1.5</timeoutFactor>
@@ -271,7 +269,7 @@
           </outputFormats>
           <reportsDirectory>${project.build.directory}/pit-reports</reportsDirectory>
           <timestampedReports>false</timestampedReports>
-          <failWhenNoMutations>false</failWhenNoMutations>
+          <failWhenNoMutations>true</failWhenNoMutations>
         </configuration>
       </plugin>
 

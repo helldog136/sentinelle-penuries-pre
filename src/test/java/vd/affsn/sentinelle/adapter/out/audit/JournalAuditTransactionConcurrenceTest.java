@@ -295,28 +295,83 @@ class JournalAuditTransactionConcurrenceTest extends AuditTestSupport {
      * Interblocage verrou applicatif / verrou de ligne : A tient la ligne d'une rupture et attend le
      * verrou d'audit ; B tient le verrou d'audit et veut la ligne. Le délai d'attente borné fait
      * échouer A (rollback, ligne libérée) et B se termine.
+     *
+     * <p>L'ordre des acquisitions est IMPOSÉ (sans attente arbitraire), sinon B peut auditer et
+     * modifier la ligne avant que A ne la prenne, et aucun interblocage n'a lieu :
+     * (1) A prend la ligne ; (2) B prend le verrou d'audit ; (3) B demande la ligne et y reste
+     * bloqué (constaté côté base) ; (4) alors seulement A demande le verrou d'audit.
      */
     @Test
     void interblocageVerrouDAuditEtVerrouDeLigneResoluParLeDelai() throws Exception {
         AuditPort port = nouvelAdaptateur(props(null, Duration.ofMillis(200), null));
         UUID rupture = UUID.randomUUID();
         insererRupture(rupture);
-        CountDownLatch bAudite = new CountDownLatch(1);
-        CompletableFuture<Void> b = CompletableFuture.runAsync(() -> tx().executeWithoutResult(s -> {
-            port.enregistrer(evenement("B"));
-            bAudite.countDown();
-            jdbc.update("UPDATE ruptures SET motif = 'DEMANDE' WHERE id = ?", rupture);
-        }));
-        assertThatThrownBy(() -> tx().executeWithoutResult(s -> {
-            jdbc.update("UPDATE ruptures SET motif = 'LOGISTIQUE' WHERE id = ?", rupture);
-            attendre(bAudite);
-            port.enregistrer(evenement("A"));
-        })).isInstanceOf(EcritureAuditImpossibleException.class);
-        b.get(ATTENTE_S, TimeUnit.SECONDS);
+        CountDownLatch aTientLaLigne = new CountDownLatch(1);
+        CountDownLatch bTientLeVerrouDAudit = new CountDownLatch(1);
+        ExecutorService executeur = Executors.newSingleThreadExecutor();
+        try {
+            Future<?> b = executeur.submit(() -> tx().executeWithoutResult(s ->
+                    sansDelaiDeVerrouDeLigneCourt(() -> {
+                        attendre(aTientLaLigne);
+                        port.enregistrer(evenement("B"));
+                        assertThat(verrouDe(port).isHeldByCurrentThread()).isTrue();
+                        bTientLeVerrouDAudit.countDown();
+                        // Bloqué sur la ligne tenue par A jusqu'au rollback de A.
+                        jdbc.update("UPDATE ruptures SET motif = 'DEMANDE' WHERE id = ?", rupture);
+                    })));
+            assertThatThrownBy(() -> tx().executeWithoutResult(s -> {
+                jdbc.update("UPDATE ruptures SET motif = 'LOGISTIQUE' WHERE id = ?", rupture);
+                aTientLaLigne.countDown();
+                attendre(bTientLeVerrouDAudit);
+                attendreUneSessionBloqueeParLaSessionCourante();
+                port.enregistrer(evenement("A"));
+            })).isInstanceOf(EcritureAuditImpossibleException.class)
+                    .hasMessageContaining("délai");
+            assertThat(verrouDe(port).isHeldByCurrentThread()).isFalse();
+            b.get(ATTENTE_S, TimeUnit.SECONDS);
+        } finally {
+            // Garde-fous : jamais de tâche B bloquée indéfiniment si A échoue avant ses signaux.
+            aTientLaLigne.countDown();
+            bTientLeVerrouDAudit.countDown();
+            executeur.shutdownNow();
+            executeur.awaitTermination(ATTENTE_S, TimeUnit.SECONDS);
+        }
         assertThat(jdbc.queryForObject("SELECT motif FROM ruptures WHERE id = ?", String.class, rupture))
                 .isEqualTo("DEMANDE");
         assertThat(lignes()).extracting(Ligne::resume).containsExactly("B");
         assertThat(verificateur.verifier().integre()).isTrue();
+        assertThat(verrouDe(port).isLocked()).isFalse();
+    }
+
+    /**
+     * Exécute {@code action} sur la connexion de la transaction courante avec un délai de verrou de
+     * ligne H2 long (défaut H2 : 2 s), puis restaure la valeur d'origine : l'interblocage doit rester
+     * « invisible pour la base » (comme sous PostgreSQL, sans lock_timeout) et n'être résolu que par
+     * le délai du verrou d'audit, quelle que soit la charge de la machine.
+     */
+    private void sansDelaiDeVerrouDeLigneCourt(Runnable action) {
+        Integer avant = jdbc.queryForObject("SELECT LOCK_TIMEOUT()", Integer.class);
+        jdbc.execute("SET LOCK_TIMEOUT " + TimeUnit.SECONDS.toMillis(ATTENTE_S));
+        try {
+            action.run();
+        } finally {
+            jdbc.execute("SET LOCK_TIMEOUT " + avant);
+        }
+    }
+
+    /**
+     * Attend, sans délai arbitraire, qu'une autre session soit effectivement bloquée par un verrou
+     * de la session (transaction) courante ; échoue clairement au-delà de {@link #ATTENTE_S}.
+     */
+    private void attendreUneSessionBloqueeParLaSessionCourante() {
+        long limite = System.nanoTime() + TimeUnit.SECONDS.toNanos(ATTENTE_S);
+        while (jdbc.queryForObject(
+                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS WHERE BLOCKER_ID = SESSION_ID()", Long.class) == 0) {
+            if (System.nanoTime() - limite > 0) {
+                throw new IllegalStateException("attente expirée : aucune session bloquée sur la ligne tenue par A");
+            }
+            Thread.onSpinWait();
+        }
     }
 
     /**

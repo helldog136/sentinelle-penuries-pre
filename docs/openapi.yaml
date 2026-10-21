@@ -23,6 +23,12 @@ info:
     **Erreurs** : toutes les erreurs suivent la RFC 7807
     (`application/problem+json`).
 
+    **Erreurs génériques** : les routes inconnues sous `/api` (404), les
+    méthodes non supportées (405, avec en-tête `Allow`) et les représentations
+    non acceptables (406) répondent aussi en `application/problem+json`, avec un
+    détail générique qui ne reprend pas la requête. Un appelant sans jeton valide
+    ou sans rôle de lecture reçoit 401 ou 403 avant ces réponses.
+
     **Aucune donnée patient** n'est exposée ni acceptée par cette API.
   contact:
     name: Bureau des Ruptures — AFFSN (fictif)
@@ -85,6 +91,10 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
 
   /api/v1/ruptures/{id}:
     get:
@@ -117,6 +127,10 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
 
   /api/v1/produits/{code}/alternatives:
     get:
@@ -150,6 +164,10 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
 
 components:
   securitySchemes:
@@ -382,7 +400,12 @@ components:
         type:
           type: string
           format: uri-reference
-          description: URI identifiant le type de problème (`about:blank` si générique).
+          description: >-
+            URI identifiant le type de problème, toujours sous
+            `https://sentinelle.affsn.example/problemes/` (jamais `about:blank`). Valeurs émises :
+            `parametre-invalide` (400), `non-authentifie` (401), `acces-refuse` (403),
+            `rupture-introuvable` (404), `requete-invalide` (autres 4xx portés par Spring MVC, par ex. route inconnue 404, 405, 406, 415 ; sans écho de la requête),
+            `erreur-interne` (500).
           example: https://sentinelle.affsn.example/problemes/parametre-invalide
         title:
           type: string
@@ -422,20 +445,20 @@ components:
             type: https://sentinelle.affsn.example/problemes/parametre-invalide
             title: Paramètre invalide
             status: 400
-            detail: "Le paramètre 'size' doit être compris entre 1 et 100."
-            instance: /api/v1/ruptures?size=1000
+            detail: Un ou plusieurs paramètres sont invalides.
             violations:
               - champ: size
-                message: doit être compris entre 1 et 100
+                message: doit être un entier compris entre 1 et 100
     Unauthorized:
       description: |
         Jeton absent, invalide ou expiré. La raison du refus n'est jamais
-        révélée : le corps de la réponse est toujours le même message générique.
+        révélée : le corps de la réponse est toujours le même message générique,
+        et l'en-tête `WWW-Authenticate` vaut toujours `Bearer`, sans paramètre.
       headers:
         WWW-Authenticate:
           schema:
             type: string
-          example: Bearer error="invalid_token"
+          example: Bearer
       content:
         application/problem+json:
           schema:
@@ -444,7 +467,7 @@ components:
             type: https://sentinelle.affsn.example/problemes/non-authentifie
             title: Authentification requise
             status: 401
-            detail: Authentification requise ou jeton invalide
+            detail: Authentification requise ou jeton invalide.
             instance: /api/v1/ruptures
     Forbidden:
       description: Rôle insuffisant (seuls PHARMACIEN et PRESCRIPTEUR peuvent lire).
@@ -456,10 +479,14 @@ components:
             type: https://sentinelle.affsn.example/problemes/acces-refuse
             title: Accès refusé
             status: 403
-            detail: Le rôle DISTRIBUTEUR n'a pas accès à la consultation REST ; utilisez le service gRPC de signalement.
+            detail: Le rôle de l'appelant ne permet pas d'accéder à cette ressource.
             instance: /api/v1/ruptures
     NotFound:
-      description: Ressource inexistante.
+      description: |
+        Ressource inexistante. Sur `GET /api/v1/ruptures/{id}`, rupture introuvable
+        (type `rupture-introuvable`) : le détail ne reprend pas l'identifiant demandé.
+        Une route inconnue sous `/api` reçoit une réponse générique de type
+        `requete-invalide` (voir la description générale).
       content:
         application/problem+json:
           schema:
@@ -468,8 +495,38 @@ components:
             type: https://sentinelle.affsn.example/problemes/rupture-introuvable
             title: Rupture introuvable
             status: 404
-            detail: Aucune rupture ne porte l'identifiant 00000000-0000-4000-8000-000000000404.
-            instance: /api/v1/ruptures/00000000-0000-4000-8000-000000000404
+            detail: Aucune rupture ne correspond à l'identifiant demandé.
+    MethodNotAllowed:
+      description: |
+        Méthode non supportée pour cette route (seul `GET` est exposé). L'en-tête
+        `Allow` indique les méthodes acceptées.
+      headers:
+        Allow:
+          schema:
+            type: string
+          example: GET
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Probleme'
+          example:
+            type: https://sentinelle.affsn.example/problemes/requete-invalide
+            title: Requête invalide
+            status: 405
+            detail: La requête ne peut pas être traitée.
+    NotAcceptable:
+      description: |
+        Représentation demandée non acceptable : l'en-tête `Accept` ne permet pas
+        `application/json`.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Probleme'
+          example:
+            type: https://sentinelle.affsn.example/problemes/requete-invalide
+            title: Requête invalide
+            status: 406
+            detail: La requête ne peut pas être traitée.
 
   examples:
     RuptureActiveExemple:

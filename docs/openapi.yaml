@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Sentinelle — API de consultation des ruptures
-  version: 1.0.0
+  version: 1.1.0
   description: |
     Surface de **lecture** de Sentinelle, service fictif de l'Agence Fédérale
     Fictive de Santé Numérique (AFFSN) de Valdarie. Projet entièrement fictif :
@@ -15,6 +15,8 @@ info:
     **Versionnement** : version majeure dans le chemin (`/api/v1`). Ajouts de
     champs ou de paramètres optionnels compatibles dans v1 ; les clients doivent
     ignorer les champs inconnus. Toute rupture de compatibilité donne `/api/v2`.
+    Ajouts additifs à ce jour : propriété `essentiel` de `Rupture` et
+    paramètre de requête `essentiel` de `GET /api/v1/ruptures` (v1.1.0).
 
     **Dates** : les dates métier sont des dates calendaires ISO-8601
     `AAAA-MM-JJ` (format OpenAPI `date`), sans heure ni fuseau, identiques à
@@ -65,6 +67,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/Region'
         - $ref: '#/components/parameters/Produit'
+        - $ref: '#/components/parameters/Essentiel'
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/Size'
       responses:
@@ -197,6 +200,18 @@ components:
       description: Ne garder que les ruptures de ce code produit.
       schema:
         $ref: '#/components/schemas/CodeProduit'
+    Essentiel:
+      name: essentiel
+      in: query
+      required: false
+      description: |
+        Ajout additif v1. `true` : ne garder que les ruptures de produits
+        essentiels (référentiel AFFSN) ; `false` : ne garder que les autres.
+        Absent : aucun filtre (comportement antérieur inchangé). Toute autre
+        valeur que `true` ou `false` donne 400 (`parametre-invalide`).
+      schema:
+        type: boolean
+      example: true
     Page:
       name: page
       in: query
@@ -345,6 +360,23 @@ components:
           type: string
           description: Identifiant de l'organisation distributrice déclarante (issu de son JWT).
           example: PRO-000042
+        essentiel:
+          type: boolean
+          description: |
+            **Ajout additif v1.** Vrai si le code produit figure au référentiel
+            AFFSN des produits essentiels (état connu du serveur au moment de la
+            réponse). Toujours renseigné par les serveurs à jour, mais
+            volontairement **non requis** dans ce schéma : un client ne doit pas
+            dépendre de sa présence (réponses d'un serveur antérieur, caches).
+            Absent ne signifie pas `false`.
+
+            Règle d'écriture associée (gRPC, DeclarerRupture/MettreAJourRupture) :
+            un produit essentiel en rupture dont la fin estimée est absente ou
+            postérieure à `dateDebut` + 30 jours doit avoir au moins une
+            alternative. Les ruptures antérieures à la règle (ou à son entrée en
+            vigueur) peuvent donc apparaître avec `essentiel: true` et une liste
+            `alternatives` vide jusqu'à leur première mise à jour.
+          example: true
 
     PageRuptures:
       type: object
@@ -546,6 +578,7 @@ components:
             commentaire: Reportine 10 mg, boîte de 30 ; stocks limités en Côte du Timeout.
         statut: EN_COURS
         distributeurId: PRO-000042
+        essentiel: true
     RuptureClotureeExemple:
       summary: Rupture clôturée de Réunionite forte (produit fictif)
       value:
@@ -561,6 +594,7 @@ components:
             commentaire: Ordre-du-Jourex 5 mg, posologie divisée par deux, efficacité comparable sur les réunions de moins d'une heure.
         statut: CLOTUREE
         distributeurId: PRO-000007
+        essentiel: false
     PageRupturesExemple:
       summary: Première page, filtrée sur la Côte du Timeout
       value:
@@ -577,6 +611,7 @@ components:
                 commentaire: Procrastinol 20 mg LP — une prise par jour.
             statut: EN_COURS
             distributeurId: PRO-000042
+            essentiel: true
           - id: 5b6c7d8e-9f0a-4b1c-9d2e-3f4a5b6c7d8e
             codeProduit: VMP-504504
             dateDebut: '2026-09-18'
@@ -587,6 +622,7 @@ components:
             alternatives: []
             statut: EN_COURS
             distributeurId: PRO-000013
+            essentiel: false
         page: 0
         size: 20
         totalElements: 2

@@ -52,7 +52,9 @@
 //   | invalide (signature, alg, iss, aud) ou expiré            |                     |
 //   | Jeton valide mais rôle différent de DISTRIBUTEUR         | PERMISSION_DENIED   |
 //   | Message invalide (format, borne, enum UNSPECIFIED,       | INVALID_ARGUMENT    |
-//   | doublon, champ obligatoire manquant, UUID mal formé)     |                     |
+//   | doublon, champ obligatoire manquant, UUID mal formé,     |                     |
+//   | alternative manquante pour un produit essentiel en       |                     |
+//   | rupture de plus de 30 jours)                             |                     |
 //   | Rupture inconnue (UUID bien formé mais absent)           | NOT_FOUND           |
 //   | Rupture appartenant à un autre distributeur              | PERMISSION_DENIED   |
 //   | Rupture déjà clôturée (mise à jour ou nouvelle clôture)  | FAILED_PRECONDITION |
@@ -68,6 +70,8 @@
 //   Le message de statut (`Status.description`) est en français et, pour
 //   INVALID_ARGUMENT, liste les violations sous la forme `champ: raison`
 //   séparées par `; ` (ex. "code_produit: format attendu VMP-NNNNNN").
+//   Message exact de la règle « produit essentiel » (voir règles ci-dessous) :
+//   "alternatives: au moins une alternative requise (produit essentiel, rupture de plus de 30 jours)".
 //   Il ne divulgue jamais l'existence ni le propriétaire d'une rupture d'un
 //   autre distributeur au-delà du code PERMISSION_DENIED.
 //
@@ -93,6 +97,26 @@
 //     base comptent pour deux) après suppression des espaces de début et de
 //     fin ; aucun caractère de contrôle (saut de ligne compris).
 //   - Valeur d'enum inconnue (numéro non défini) : traitée comme UNSPECIFIED.
+//   - Produit essentiel (règle ajoutée en v1, de façon additive) : si le code
+//     produit figure au référentiel AFFSN des produits essentiels ET que la
+//     rupture est « longue », la liste `alternatives` doit contenir au moins
+//     une entrée. Est « longue » une rupture dont date_fin_estimee est
+//     strictement postérieure à date_debut + 30 jours, ou absente.
+//     Seuil : date_fin_estimee = date_debut + 30 jours est acceptée sans
+//     alternative ; date_debut + 31 jours est refusée.
+//     Violation => INVALID_ARGUMENT, message exact :
+//       "alternatives: au moins une alternative requise (produit essentiel, rupture de plus de 30 jours)"
+//     Champ d'application :
+//       * DeclarerRupture : toujours évaluée ;
+//       * MettreAJourRupture : évaluée sur l'état cible (date de début
+//         enregistrée, date_fin_estimee et alternatives fournies). Une rupture
+//         existante non conforme est tolérée telle quelle jusqu'à sa première
+//         mise à jour, qui doit alors la rendre conforme ;
+//       * CloturerRupture : jamais évaluée (la clôture n'est jamais bloquée
+//         par cette règle).
+//     Entrée en vigueur : date configurée côté serveur ; avant cette date
+//     (date du jour Valdarie à la réception), la règle est inactive.
+//     Le caractère essentiel est restitué en sortie par `Rupture.essentiel`.
 // =============================================================================
 
 syntax = "proto3";
@@ -113,6 +137,11 @@ service SignalementService {
   // Déclare une nouvelle rupture pour le distributeur du jeton.
   // Le serveur attribue l'identifiant (UUID) et le statut EN_COURS.
   // Erreurs : UNAUTHENTICATED, PERMISSION_DENIED (rôle), INVALID_ARGUMENT.
+  // INVALID_ARGUMENT inclut la règle « produit essentiel » : produit du
+  // référentiel AFFSN des essentiels, fin estimée absente ou > début + 30 j
+  // (début + 30 j accepté), et aucune alternative fournie. Message :
+  // "alternatives: au moins une alternative requise (produit essentiel, rupture de plus de 30 jours)".
+  // Inactive avant la date d'entrée en vigueur configurée côté serveur.
   rpc DeclarerRupture(DeclarerRuptureRequest) returns (DeclarerRuptureResponse);
 
   // Met à jour une rupture EN_COURS appartenant au distributeur du jeton.
@@ -122,6 +151,12 @@ service SignalementService {
   // Erreurs : UNAUTHENTICATED, PERMISSION_DENIED (rôle ou propriétaire),
   // INVALID_ARGUMENT, NOT_FOUND, FAILED_PRECONDITION (déjà clôturée),
   // ABORTED (conflit de modification concurrente : relire et réessayer).
+  // INVALID_ARGUMENT inclut la règle « produit essentiel », évaluée sur l'état
+  // cible (date de début enregistrée, fin estimée et alternatives fournies) :
+  // fin estimée absente ou > début + 30 j sans aucune alternative => refus,
+  // message "alternatives: au moins une alternative requise (produit essentiel, rupture de plus de 30 jours)".
+  // Une rupture existante non conforme reste tolérée jusqu'à cette première
+  // mise à jour. Inactive avant la date d'entrée en vigueur configurée.
   rpc MettreAJourRupture(MettreAJourRuptureRequest) returns (MettreAJourRuptureResponse);
 
   // Clôture une rupture EN_COURS appartenant au distributeur du jeton.
@@ -131,6 +166,7 @@ service SignalementService {
   // Erreurs : UNAUTHENTICATED, PERMISSION_DENIED (rôle ou propriétaire),
   // INVALID_ARGUMENT, NOT_FOUND, FAILED_PRECONDITION (déjà clôturée),
   // ABORTED (conflit de modification concurrente : relire et réessayer).
+  // La règle « produit essentiel » ne s'applique jamais à la clôture.
   rpc CloturerRupture(CloturerRuptureRequest) returns (CloturerRuptureResponse);
 }
 
@@ -218,6 +254,15 @@ message Rupture {
   // serveur (information de sortie, jamais d'entrée).
   string distributeur_id = 10;
 
+  // Ajout additif v1. Vrai si le code produit figure au référentiel AFFSN des
+  // produits essentiels (état connu du serveur au moment de la réponse).
+  // Information de sortie uniquement, jamais d'entrée : le client ne peut pas
+  // le positionner. Un client compilé avant cet ajout l'ignore ; un serveur
+  // antérieur ne le renseigne pas (valeur par défaut proto3 : false), le
+  // client ne doit donc pas inférer « non essentiel » d'un false reçu d'un
+  // serveur non à jour.
+  bool essentiel = 13;
+
   // Champs retirés (horodatages techniques hors modèle) : numéros et noms réservés.
   reserved 11, 12;
   reserved "cree_le", "modifie_le";
@@ -246,6 +291,8 @@ message DeclarerRuptureRequest {
   repeated Region regions = 5;
 
   // Optionnel : 0 à 20 alternatives (codes distincts, différents du produit).
+  // Au moins une si le produit est essentiel et la rupture longue (fin estimée
+  // absente ou > date_debut + 30 j) : voir règles de validation communes.
   repeated Alternative alternatives = 6;
 
   // NB : pas de champ distributeur / déclarant. L'identité vient du JWT.
@@ -281,6 +328,8 @@ message MettreAJourRuptureRequest {
   repeated Region regions = 4;
 
   // Optionnel : 0 à 20 alternatives. Remplace intégralement la liste existante.
+  // Au moins une si le produit est essentiel et la rupture longue (fin estimée
+  // absente ou > date de début enregistrée + 30 j) : voir règles communes.
   repeated Alternative alternatives = 5;
 }
 

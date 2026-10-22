@@ -14,16 +14,23 @@ public interface ConsulterRupturesUseCase {
 
     Page<RuptureVue> consulter(Acteur acteur, Critere critere);
 
-    record Critere(Optional<Region> region, Optional<CodeProduit> produit, Pagination pagination) {
+    record Critere(Optional<Region> region, Optional<CodeProduit> produit, Optional<Boolean> essentiel,
+                   Pagination pagination) {
 
         public Critere {
             region = region == null ? Optional.empty() : region;
             produit = produit == null ? Optional.empty() : produit;
+            essentiel = essentiel == null ? Optional.empty() : essentiel;
             Objects.requireNonNull(pagination, "pagination");
         }
 
+        /** Constructeur de compatibilité : aucun filtre sur le caractère essentiel. */
+        public Critere(Optional<Region> region, Optional<CodeProduit> produit, Pagination pagination) {
+            this(region, produit, Optional.empty(), pagination);
+        }
+
         public static Critere sansFiltre(Pagination pagination) {
-            return new Critere(Optional.empty(), Optional.empty(), pagination);
+            return new Critere(Optional.empty(), Optional.empty(), Optional.empty(), pagination);
         }
     }
 }

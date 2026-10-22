@@ -1,0 +1,31 @@
+# Configuration du lot batch (job nocturne calculerTensionNocturne, ADR-003 b).
+# Importé en optionnel par application.yml. Valeurs validées au démarrage (TensionBatchProperties).
+spring:
+  batch:
+    jdbc:
+      # Les tables Spring Batch viennent de la migration Flyway V3 : l'initialiseur de Boot ne doit rien créer.
+      initialize-schema: never
+    job:
+      # Le job est lancé par la planification, jamais au démarrage.
+      enabled: false
+
+sentinelle:
+  batch:
+    # Désactivé par défaut : le job ne s'active que si enabled=true (RuptureRepository est implémenté par RuptureRepositoryAdapter ; HorlogePort par HorlogeSysteme, enregistrée par HorlogeParDefautRegistrar).
+    enabled: false
+    # Cron Spring à 6 champs (seconde minute heure jour mois jour-de-semaine) : 02:00 chaque jour.
+    cron: "0 0 2 * * *"
+    # Fuseau (ZoneId) dans lequel le cron est interprété. La date de référence vient de HorlogePort.
+    fuseau: UTC
+    # Une région est notifiée si son indice est STRICTEMENT supérieur à ce seuil. Nombre fini >= 0.
+    seuil-tension: 10.0
+    # Bloc notifications (volontairement en commentaire : une clé YAML « notifications: » sans valeur
+    # serait lue comme une chaîne vide et ferait échouer la liaison même job désactivé).
+    # notifications:
+    # OBLIGATOIRE quand sentinelle.batch.enabled=true : AUCUN défaut (absent, vide ou blanc : le
+    # démarrage échoue). Répertoire ABSOLU fixé par l'exploitation (jamais saisi par un utilisateur),
+    # de préférence dédié, hors répertoire temporaire partagé. S'il n'existe pas, il est créé en
+    # rwx------ (système POSIX ; droits par défaut du système sinon).
+    # Le nom du fichier est dérivé de la seule date : notifications-tension-AAAA-MM-JJ.json
+    # Exemple (à fournir par l'environnement, par ex. SENTINELLE_BATCH_NOTIFICATIONS_REPERTOIRE) :
+    #   repertoire: /var/lib/sentinelle/notifications-tension

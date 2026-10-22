@@ -1,0 +1,6 @@
+# Profil prod : aucune valeur secrète, uniquement des références à des variables d'environnement.
+spring:
+  datasource:
+    url: ${SENTINELLE_DB_URL}
+    username: ${SENTINELLE_DB_USER}
+    password: ${SENTINELLE_DB_PASSWORD}

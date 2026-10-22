@@ -1,0 +1,306 @@
+// =============================================================================
+// Sentinelle — contrat gRPC d'écriture (v1)
+// Agence Fédérale Fictive de Santé Numérique (AFFSN), Valdarie.
+// Projet entièrement fictif : aucun produit, organisme ou identifiant réel.
+// =============================================================================
+//
+// SURFACE
+//   Écriture uniquement, réservée au rôle DISTRIBUTEUR (cf. ADR-002).
+//   La lecture se fait en REST (docs/openapi.yaml), jamais par ce service.
+//
+// VERSIONNEMENT
+//   Le numéro de version majeure est porté par le package (`.v1`) et par le
+//   chemin du fichier (`sentinelle/v1/`). Règles d'évolution au sein de v1 :
+//     - ajout de champs, de valeurs d'enum ou de RPC : autorisé ;
+//     - renommage, changement de type ou de numéro de champ : interdit ;
+//     - un champ retiré voit son numéro ET son nom placés en `reserved`.
+//   Toute rupture de compatibilité donne lieu à un package `vd.affsn.sentinelle.v2`
+//   servi en parallèle de v1 pendant la période de transition.
+//
+// AUTHENTIFICATION ET IDENTITÉ
+//   Chaque appel porte la metadata `authorization: Bearer <jwt>` (JWT RS256,
+//   validé par l'intercepteur gRPC : signature, exp, iss, aud — ADR-002).
+//   AUCUN message de ce contrat ne transporte l'identité du déclarant : le
+//   distributeur est exclusivement celui du jeton. C'est délibéré : il n'existe
+//   donc aucun champ à « ignorer » côté serveur, et aucune confusion possible.
+//
+// AUCUNE DONNÉE PATIENT
+//   Ce contrat ne contient et ne contiendra aucun identifiant ou donnée de
+//   patient. Les commentaires libres ne doivent pas en contenir non plus.
+//
+// REPRÉSENTATION DES DATES (choix de conception)
+//   Les dates métier (début, fin estimée, fin effective) sont des DATES
+//   CALENDAIRES sans heure ni fuseau, transmises en `string` au format
+//   ISO-8601 étendu strict `AAAA-MM-JJ` (ex. "2026-11-03"), interprétées dans
+//   le calendrier légal de Valdarie.
+//   Pourquoi pas google.protobuf.Timestamp : c'est un instant UTC ; une date
+//   « 3 novembre » deviendrait « 2 novembre 23:00 » selon le fuseau du client,
+//   d'où une ambiguïté inacceptable pour une date de rupture.
+//   Pourquoi pas google.type.Date : il vit dans proto-google-common-protos,
+//   qui ne fait pas partie de protobuf-java ; on évite une dépendance et un
+//   chemin d'import supplémentaires pour un seul type. La chaîne ISO-8601 est
+//   triable lexicographiquement, lisible dans les journaux et identique au
+//   format `date` d'OpenAPI utilisé par la surface REST.
+//
+// TABLE DE CORRESPONDANCE ERREURS -> CODES gRPC
+//   L'ordre d'évaluation est celui du tableau (authentification d'abord, puis
+//   autorisation de rôle, validation, existence, propriété, état).
+//
+//   | Situation                                                | Code gRPC           |
+//   |----------------------------------------------------------|---------------------|
+//   | Metadata `authorization` absente, mal formée, jeton      | UNAUTHENTICATED     |
+//   | invalide (signature, alg, iss, aud) ou expiré            |                     |
+//   | Jeton valide mais rôle différent de DISTRIBUTEUR         | PERMISSION_DENIED   |
+//   | Message invalide (format, borne, enum UNSPECIFIED,       | INVALID_ARGUMENT    |
+//   | doublon, champ obligatoire manquant, UUID mal formé)     |                     |
+//   | Rupture inconnue (UUID bien formé mais absent)           | NOT_FOUND           |
+//   | Rupture appartenant à un autre distributeur              | PERMISSION_DENIED   |
+//   | Rupture déjà clôturée (mise à jour ou nouvelle clôture)  | FAILED_PRECONDITION |
+//   | Conflit de modification concurrente (MettreAJourRupture  | ABORTED             |
+//   | et CloturerRupture uniquement)                           |                     |
+//   | Erreur inattendue côté serveur                           | INTERNAL            |
+//
+//   ABORTED : une autre modification de la même rupture a été validée en
+//   même temps (verrou optimiste) ; aucune modification n'a été perdue ni
+//   appliquée pour cet appel. Le client peut relire la rupture et réessayer.
+//   Le message est fixe et générique, sans identifiant ni valeur.
+//
+//   Le message de statut (`Status.description`) est en français et, pour
+//   INVALID_ARGUMENT, liste les violations sous la forme `champ: raison`
+//   séparées par `; ` (ex. "code_produit: format attendu VMP-NNNNNN").
+//   Il ne divulgue jamais l'existence ni le propriétaire d'une rupture d'un
+//   autre distributeur au-delà du code PERMISSION_DENIED.
+//
+// RÈGLES DE VALIDATION COMMUNES (violation => INVALID_ARGUMENT)
+//   - Code produit : regex `^VMP-[0-9]{6}$` (ex. "VMP-123456"), sensible à la
+//     casse, sans espace.
+//   - Identifiant de rupture : UUID textuel canonique en minuscules
+//     (8-4-4-4-12 hexadécimaux), attribué par le serveur.
+//   - Dates : format strict `AAAA-MM-JJ`, date calendaire existante.
+//       * date_debut : dans [J − 365 jours ; J + 90 jours], J = date du jour
+//         (Valdarie) à la réception ;
+//       * date_fin_estimee (si présente) : >= date_debut et <= date_debut + 730 jours
+//         à la déclaration uniquement ; à la mise à jour, seule la règle
+//         >= date_debut enregistrée s'applique (voir MettreAJourRuptureRequest) ;
+//       * date_fin_effective (clôture) : >= date_debut et <= J.
+//   - Motif : valeur définie différente de MOTIF_RUPTURE_UNSPECIFIED.
+//   - Régions : 1 à 6 valeurs, toutes différentes de REGION_UNSPECIFIED,
+//     sans doublon.
+//   - Alternatives : 0 à 20 ; chaque code alternatif respecte le format
+//     produit, est différent du produit en rupture, et n'apparaît qu'une fois.
+//   - Commentaire d'alternative : optionnel, 280 unités UTF-16 au maximum
+//     (et non points de code : certains caractères hors plan multilingue de
+//     base comptent pour deux) après suppression des espaces de début et de
+//     fin ; aucun caractère de contrôle (saut de ligne compris).
+//   - Valeur d'enum inconnue (numéro non défini) : traitée comme UNSPECIFIED.
+// =============================================================================
+
+syntax = "proto3";
+
+package vd.affsn.sentinelle.v1;
+
+option java_package = "vd.affsn.sentinelle.grpc.v1";
+option java_multiple_files = true;
+option java_outer_classname = "SentinelleProto";
+
+// -----------------------------------------------------------------------------
+// Service
+// -----------------------------------------------------------------------------
+
+// Service de signalement des ruptures, appelé par les systèmes des distributeurs.
+// Rôle requis : DISTRIBUTEUR. Le distributeur concerné est celui du JWT.
+service SignalementService {
+  // Déclare une nouvelle rupture pour le distributeur du jeton.
+  // Le serveur attribue l'identifiant (UUID) et le statut EN_COURS.
+  // Erreurs : UNAUTHENTICATED, PERMISSION_DENIED (rôle), INVALID_ARGUMENT.
+  rpc DeclarerRupture(DeclarerRuptureRequest) returns (DeclarerRuptureResponse);
+
+  // Met à jour une rupture EN_COURS appartenant au distributeur du jeton.
+  // Sémantique de REMPLACEMENT COMPLET des champs modifiables (voir message).
+  // Le code produit et la date de début sont immuables : pour les corriger,
+  // clôturer la rupture et en déclarer une nouvelle.
+  // Erreurs : UNAUTHENTICATED, PERMISSION_DENIED (rôle ou propriétaire),
+  // INVALID_ARGUMENT, NOT_FOUND, FAILED_PRECONDITION (déjà clôturée),
+  // ABORTED (conflit de modification concurrente : relire et réessayer).
+  rpc MettreAJourRupture(MettreAJourRuptureRequest) returns (MettreAJourRuptureResponse);
+
+  // Clôture une rupture EN_COURS appartenant au distributeur du jeton.
+  // Une rupture clôturée est définitive : toute nouvelle clôture ou mise à
+  // jour renvoie FAILED_PRECONDITION (la clôture n'est pas idempotente, afin
+  // que le client sache qu'il rejoue un appel déjà pris en compte).
+  // Erreurs : UNAUTHENTICATED, PERMISSION_DENIED (rôle ou propriétaire),
+  // INVALID_ARGUMENT, NOT_FOUND, FAILED_PRECONDITION (déjà clôturée),
+  // ABORTED (conflit de modification concurrente : relire et réessayer).
+  rpc CloturerRupture(CloturerRuptureRequest) returns (CloturerRuptureResponse);
+}
+
+// -----------------------------------------------------------------------------
+// Énumérations
+// -----------------------------------------------------------------------------
+
+// Motif de la rupture. La valeur 0 est rejetée (INVALID_ARGUMENT).
+enum MotifRupture {
+  MOTIF_RUPTURE_UNSPECIFIED = 0;
+  // Incident ou capacité insuffisante de production.
+  MOTIF_RUPTURE_PRODUCTION = 1;
+  // Problème de transport, d'entreposage ou d'acheminement.
+  MOTIF_RUPTURE_LOGISTIQUE = 2;
+  // Suspension, retrait ou blocage administratif.
+  MOTIF_RUPTURE_REGLEMENTAIRE = 3;
+  // Demande supérieure à l'approvisionnement.
+  MOTIF_RUPTURE_DEMANDE = 4;
+}
+
+// Régions de référence de la Valdarie. La valeur 0 est rejetée (INVALID_ARGUMENT).
+// Correspondance REST : le nom sans le préfixe `REGION_` (ex. HAUTE_PAPERASSE).
+enum Region {
+  REGION_UNSPECIFIED = 0;
+  REGION_HAUTE_PAPERASSE = 1;
+  REGION_BASSE_VALIDATION = 2;
+  REGION_PLATEAU_DU_LEGACY = 3;
+  REGION_COTE_DU_TIMEOUT = 4;
+  REGION_MARAIS_DE_LA_RECETTE = 5;
+  REGION_PROVINCE_DU_TICKET_OUVERT = 6;
+}
+
+// Statut d'une rupture, uniquement en sortie (jamais accepté en entrée).
+enum StatutRupture {
+  STATUT_RUPTURE_UNSPECIFIED = 0;
+  STATUT_RUPTURE_EN_COURS = 1;
+  STATUT_RUPTURE_CLOTUREE = 2;
+}
+
+// -----------------------------------------------------------------------------
+// Types communs
+// -----------------------------------------------------------------------------
+
+// Produit de substitution proposé pendant la rupture.
+message Alternative {
+  // Code du produit alternatif, format `^VMP-[0-9]{6}$`, différent du produit
+  // en rupture. Obligatoire.
+  string code_produit = 1;
+
+  // Commentaire libre (posologie équivalente, conditionnement, disponibilité…).
+  // Optionnel, 280 unités UTF-16 maximum, après suppression des espaces
+  // de début et de fin. Aucune donnée patient.
+  string commentaire = 2;
+}
+
+// Représentation d'une rupture renvoyée par le serveur après chaque écriture.
+message Rupture {
+  // UUID attribué par le serveur.
+  string id = 1;
+
+  // Code produit en rupture, `^VMP-[0-9]{6}$`.
+  string code_produit = 2;
+
+  // Date calendaire `AAAA-MM-JJ`.
+  string date_debut = 3;
+
+  // Date calendaire `AAAA-MM-JJ`, absente si inconnue.
+  optional string date_fin_estimee = 4;
+
+  // Date calendaire `AAAA-MM-JJ`, présente uniquement si statut = CLOTUREE.
+  optional string date_fin_effective = 5;
+
+  MotifRupture motif = 6;
+
+  // 1 à 6 régions distinctes, dans l'ordre croissant des numéros d'enum.
+  repeated Region regions = 7;
+
+  // Triées par code produit alternatif croissant ; l'ordre de saisie n'est pas
+  // conservé.
+  repeated Alternative alternatives = 8;
+
+  StatutRupture statut = 9;
+
+  // Identifiant de l'organisation distributrice, recopié du JWT par le
+  // serveur (information de sortie, jamais d'entrée).
+  string distributeur_id = 10;
+
+  // Champs retirés (horodatages techniques hors modèle) : numéros et noms réservés.
+  reserved 11, 12;
+  reserved "cree_le", "modifie_le";
+}
+
+// -----------------------------------------------------------------------------
+// DeclarerRupture
+// -----------------------------------------------------------------------------
+
+message DeclarerRuptureRequest {
+  // Obligatoire. `^VMP-[0-9]{6}$`.
+  string code_produit = 1;
+
+  // Obligatoire. `AAAA-MM-JJ`, dans [J − 365 j ; J + 90 j].
+  string date_debut = 2;
+
+  // Optionnel. `AAAA-MM-JJ`, >= date_debut et <= date_debut + 730 j.
+  // `optional` permet de distinguer « non renseignée » de « chaîne vide »
+  // (une chaîne vide explicitement envoyée est rejetée).
+  optional string date_fin_estimee = 3;
+
+  // Obligatoire, différent de MOTIF_RUPTURE_UNSPECIFIED.
+  MotifRupture motif = 4;
+
+  // Obligatoire : 1 à 6 régions distinctes, aucune UNSPECIFIED.
+  repeated Region regions = 5;
+
+  // Optionnel : 0 à 20 alternatives (codes distincts, différents du produit).
+  repeated Alternative alternatives = 6;
+
+  // NB : pas de champ distributeur / déclarant. L'identité vient du JWT.
+}
+
+message DeclarerRuptureResponse {
+  Rupture rupture = 1;
+}
+
+// -----------------------------------------------------------------------------
+// MettreAJourRupture
+// -----------------------------------------------------------------------------
+
+// Remplacement complet des champs modifiables : tout champ non fourni prend la
+// valeur « vide » (date_fin_estimee absente, liste d'alternatives vide). Le
+// client renvoie donc l'état cible complet. Ce choix évite les ambiguïtés d'un
+// patch partiel (impossible en proto3 de distinguer « liste vide » de « non
+// modifiée » sans FieldMask).
+message MettreAJourRuptureRequest {
+  // Obligatoire. UUID de la rupture.
+  string id = 1;
+
+  // Optionnel. À la MISE À JOUR, seule la règle `>= date de début enregistrée`
+  // est vérifiée (par le domaine, erreur INVALID_ARGUMENT) ; le plafond
+  // `<= date de début + 730 j` ne s'applique qu'à la DÉCLARATION. Absent =
+  // fin estimée effacée.
+  optional string date_fin_estimee = 2;
+
+  // Obligatoire, différent de MOTIF_RUPTURE_UNSPECIFIED.
+  MotifRupture motif = 3;
+
+  // Obligatoire : 1 à 6 régions distinctes, aucune UNSPECIFIED.
+  repeated Region regions = 4;
+
+  // Optionnel : 0 à 20 alternatives. Remplace intégralement la liste existante.
+  repeated Alternative alternatives = 5;
+}
+
+message MettreAJourRuptureResponse {
+  Rupture rupture = 1;
+}
+
+// -----------------------------------------------------------------------------
+// CloturerRupture
+// -----------------------------------------------------------------------------
+
+message CloturerRuptureRequest {
+  // Obligatoire. UUID de la rupture.
+  string id = 1;
+
+  // Obligatoire. `AAAA-MM-JJ`, >= date de début et <= J (pas de clôture
+  // dans le futur : une fin prévue relève de date_fin_estimee).
+  string date_fin_effective = 2;
+}
+
+message CloturerRuptureResponse {
+  Rupture rupture = 1;
+}

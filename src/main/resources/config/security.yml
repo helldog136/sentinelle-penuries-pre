@@ -1,0 +1,28 @@
+# Sécurité JWT (ADR-002). Aucune clé, aucun secret ici : uniquement des références à l'environnement.
+# Sentinelle ne fait que VÉRIFIER des jetons RS256 (algorithme épinglé dans le code, pas configurable).
+#
+# Hors profil test, les trois variables d'environnement sont OBLIGATOIRES et n'ont AUCUNE valeur par
+# défaut : sans elles, le démarrage échoue (fail-fast voulu, ADR-002 « Conséquences »).
+#   SENTINELLE_JWT_PUBLIC_KEY_LOCATION : emplacement Spring (classpath: ou file:) d'un PEM de clé PUBLIQUE RSA
+#   SENTINELLE_JWT_ISSUER              : émetteur attendu (claim iss)
+#   SENTINELLE_JWT_AUDIENCE            : audience attendue (claim aud)
+sentinelle:
+  security:
+    jwt:
+      public-key: ${SENTINELLE_JWT_PUBLIC_KEY_LOCATION}
+      issuer: ${SENTINELLE_JWT_ISSUER}
+      audience: ${SENTINELLE_JWT_AUDIENCE}
+      # Tolérance d'horloge sur exp/nbf, en secondes : 30 par défaut, 60 au maximum.
+      leeway-secondes: 30
+---
+# Réservé au profil test : clé publique de TEST (src/test/resources, jamais livrée), domaines .invalid.
+spring:
+  config:
+    activate:
+      on-profile: test
+sentinelle:
+  security:
+    jwt:
+      public-key: classpath:test-keys/TEST-ONLY-jwt-public.pem
+      issuer: https://emetteur-de-test.affsn.invalid
+      audience: https://sentinelle-de-test.affsn.invalid

@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: sentinelle
+  # Fichiers de configuration optionnels, chargés s'ils existent (wildcard non supporté sur classpath:).
+  config:
+    import:
+      - optional:classpath:/config/security.yml
+      - optional:classpath:/config/grpc.yml
+      - optional:classpath:/config/batch.yml
+  # Profil par défaut : prod-like, PostgreSQL. Aucun secret ici, uniquement des variables d'environnement SANS valeur par défaut.
+  datasource:
+    url: ${SENTINELLE_DB_URL}
+    username: ${SENTINELLE_DB_USER}
+    password: ${SENTINELLE_DB_PASSWORD}
+  flyway:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  batch:
+    job:
+      # Le job est planifié, pas lancé au démarrage.
+      enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

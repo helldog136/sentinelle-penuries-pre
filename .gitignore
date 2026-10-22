@@ -1,0 +1,48 @@
+# Maven
+target/
+*.versionsBackup
+*.releaseBackup
+pom.xml.tag
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.flattened-pom.xml
+
+# Generated (protobuf / gRPC)
+src/main/generated/
+
+# JaCoCo / tests
+*.exec
+.coverage/
+
+# Logs, environnement local et secrets
+*.log
+.env
+.env.*
+!.env.example
+*.p12
+*.jks
+*.keystore
+*.pem
+*.key
+# Clés privées jamais commitées ; exception : la paire TEST-ONLY suivie volontairement pour les tests.
+!src/test/resources/test-keys/**
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.project
+.classpath
+.factorypath
+.apt_generated/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db

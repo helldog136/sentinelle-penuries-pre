@@ -30,7 +30,7 @@ management:
 
 sentinelle:
   regles:
-    alternative-essentiel:
-      # Date d'entrée en vigueur de la règle « alternative essentielle », au format ISO AAAA-MM-JJ (ex. 2026-12-31).
-      # Absente ou vide (défaut) : la règle est active immédiatement. Aucun secret ici.
-      date-entree-en-vigueur: ""
+    alternative-obligatoire:
+      # Date d'entrée en vigueur de la règle d'alternative obligatoire (ADR-004), au format AAAA-MM-JJ (ex. 2026-12-31).
+      # Optionnelle : absente ou vide (défaut) = règle en vigueur immédiatement. Présente mais invalide = échec du démarrage.
+      entree-en-vigueur: ""

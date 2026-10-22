@@ -28,10 +28,10 @@ Ce document suit la répartition du travail entre le tech lead et les sous-agent
 | 3 | P5 `pom.xml` : exclusion JaCoCo du code généré, PIT à la demande | Senior pragmatique | sonnet | rétroactif | OK pour JaCoCo (couverture globale 34,5 % brute, 66,6 % hors code généré). **PIT faux-succès** : la portée par défaut ne mesurait rien (validée avec un seul motif), corrigé par P6 |
 | 3 | S1 six services applicatifs | Senior pragmatique | sonnet | TDD | OK : 48 tests rouges d'abord, puis verts, plus 1 test ajouté pour l'ordre des contrôles à la clôture |
 | 3 | R1 tests rétroactifs du job batch (relecteur indépendant) | Architecte qui a tout vu | opus | rétroactif | OK : 164 tests, aucun bug déclaré, 10 ambiguïtés verrouillées dont 3 jugées défectueuses |
-| 3 | R2 tests rétroactifs du journal d'audit (relecteur indépendant) | Architecte qui a tout vu | opus | rétroactif | OK : 111 tests, **3 bugs** (dont 2 de gravité élevée) |
+| 3 | R2 tests rétroactifs du journal d'audit (relecteur indépendant) | Architecte qui a tout vu | opus | rétroactif | OK : 111 tests, **3 bugs** (dont 2 de gravité élevée), soit 2 causes racines pour 3 effets : le commit `bb534eb` dit « 2 bugs » |
 | 3 | B1+B2 fourche de la chaîne d'audit et déni de service après un `REQUIRES_NEW` | Architecte qui a tout vu | opus | correctif | OK. Choix du modèle : problème de synchronisation transactionnelle, faux correctif facile. Cause racine confirmée |
 | 3 | B3 jeton `Bearer` non masqué, assainissement non idempotent | Senior pragmatique | sonnet | correctif | OK. Choix : problème étroit, spécification claire, tests prêts. Fermeture aussi du contournement par U+00A0 |
-| 3 | B4 durcissement du batch (`run.id`, répertoire obligatoire et privé, ERROR) | Senior pragmatique | sonnet | correctif | OK. Choix : trois corrections locales aux tests prêts. 6 tests retournés (listés dans le commit) |
+| 3 | B4 durcissement du batch (`run.id`, répertoire obligatoire et privé, ERROR) | Senior pragmatique | sonnet | correctif | OK. Choix : trois corrections locales aux tests prêts. 6 tests retournés. Le commit `37dbc65` renvoie à ce document pour leur liste, qui manquait ici. Cinq sont identifiables par leur renommage dans le diff : `runIdTexteAccepteEmpoisonneLesLancementsSuivants`, `repertoireVideRetombeSurLeDefaut`, `repertoireNulRemplaceParLeDefautSousTmpdir`, `jobEnEchecJournaliseEnInfoAvecLeStatut`, `exceptionDeLHorlogePropageeEtAucunLancement`. Le sixième a été modifié sans changer de nom et n'est pas identifié |
 | 3 | W1 câblage Spring : horloge, six décorateurs transactionnels | Senior pragmatique | sonnet | rétroactif | OK. `@ConditionalOnMissingBean` remplacé par un post-processeur (dépendance à l'ordre de traitement) |
 | 3 | E1 test de bout en bout gRPC → REST → batch (relecteur indépendant) | Architecte qui a tout vu | opus | rétroactif | OK : 40 tests, 3 rouges pour 1 bug d'intégration |
 | 3 | B5 erreurs REST 500 au lieu de 404/405/406 | Senior pragmatique | sonnet | correctif | OK. Choix : sémantique Spring MVC connue, un fichier |
@@ -51,12 +51,48 @@ Incident d'exécution de la vague 2 : les worktrees d'agents ont été créés d
 
 La vague 1′ est un prérequis ajouté par le tech lead : l'énoncé de la vague 2 supposait le domaine implémenté et le schéma présent, ce qui n'était pas le cas.
 
+## Évolution « produits essentiels » (2026-10-22) : vagues A et B
+
+Source : `git log` (pieds de commit `Delegated-to:`) et rapports d'agents. Les identifiants `B0` à `B5` de la vague B n'ont rien à voir avec les correctifs `B1` à `B6` de la vague 3.
+
+| Vague | Tâche | Surnom | Modèle | Mode (TDD / rétroactif) | Résultat |
+|---|---|---|---|---|---|
+| A | A0 ADR-004 : produits essentiels, alternative obligatoire, pondération, 67 cas d'acceptation | Architecte qui a tout vu | opus | TDD (phase spec) | OK `feaeebc`. Deux décisions prises par l'agent, à valider : ×2 indépendant de la date d'entrée en vigueur, référentiel indisponible = `INTERNAL` / `FAILED` sans repli. À corriger : `PRO-0001` invalide (6 chiffres attendus), colonne `depuis` de V4 absente de l'ADR |
+| A | A1 contrats additifs : `bool essentiel = 13` (proto), propriété et filtre `essentiel` (OpenAPI 1.1.0) | Architecte qui a tout vu | opus | TDD (phase spec) | OK `67ff521`. Aucun renommage, aucun changement de type ni de numéro |
+| A | A2 squelettes domaine et application (port `ReferentielProduitsPort`, règle, surcharges de `CalculateurTension`, `RuptureVue.essentiel`) | Senior pragmatique | sonnet | TDD (stubs) | OK `452018b`, nouveaux chemins en `UnsupportedOperationException`. Trou relevé par B2 : `CloturerRuptureService` sans port référentiel |
+| A | A3 migration V4 `produits_essentiels` (schéma seul) | Senior pragmatique | sonnet | rétroactif | OK `b708591`. Ajoute une colonne `depuis DATE NOT NULL` que l'ADR ne prévoit pas (conservée) |
+| A | A4 propriété de date d'entrée en vigueur | Stagiaire survitaminé | haiku | rétroactif | OK `597b782`, mais sous le nom `date-entree-en-vigueur` alors que l'ADR-004, écrit en parallèle, fixe `entree-en-vigueur`. Corrigé par B0 |
+| B | B0 aligner le nom de la propriété sur l'ADR-004 | Stagiaire survitaminé | haiku | correctif | OK `71a75be` à la relance. Première tentative bloquée (worktree sur une base périmée, 42 s) |
+| B | B1 tests de la règle pure et de la pondération (AC-01 à 12, 14, 48 à 55, 59, 60) | Architecte qui a tout vu | opus | TDD (rouge) | OK `3370668` : 52 rouges. **Écart** : a écrit puis restauré une implémentation temporaire dans `src/main`, contre la consigne. Ses tests n'ont jamais été confrontés à une implémentation correcte |
+| B | B2 tests des services : déclarer, mettre à jour, clôturer, refus non audités (AC-15 à 36, 46, 47) | Architecte qui a tout vu | opus | TDD (rouge) | OK `13c050c` : 42 rouges. A relevé l'absence de port référentiel à la clôture, `PRO-0001` invalide et l'ordre d'évaluation en déclaration, déduit et non écrit dans l'ADR |
+| B | B3 tests REST, gRPC et adaptateur du référentiel (AC-37 à 45), avec les stubs d'adaptateurs | Senior pragmatique | sonnet | TDD (stubs puis rouge) | OK `9c5582b` [stubs] et `39aed38` : 32 rouges, à la relance. Première tentative bloquée (worktree sur un ancien merge, 50 s) |
+| B | B4 tests du batch et de l'indice pondéré (AC-48 à 65), avec les stubs du tasklet | Senior pragmatique | sonnet | TDD (stubs puis rouge) | OK `c9a57d0` [stubs] et `f1cde3a` : 27 rouges. Sur sa base périmée, il avait commencé à recréer des squelettes hors périmètre, annulés par le tech lead |
+| B | B5 tests de bout en bout, rétrocompatibilité d'un ancien client, entrée en vigueur au démarrage, ArchUnit (AC-19, 20, 44, 47, 66, 67) | Architecte qui a tout vu | opus | TDD (rouge) | OK `813f744` : 28 rouges mesurés (le tech lead en avait annoncé 25, l'agent 30 dans son worktree) |
+| B | Correctif de collision des stubs B3/B4 : l'adaptateur n'est plus un bean tant qu'il n'est pas implémenté | Stagiaire survitaminé | haiku | correctif | OK, inclus dans `c9a57d0`. Le batch de B4 empruntait le stub `@Repository` de B3 : 15 tests historiques rouges. Le tech lead a committé avant le rapport de l'agent, qui n'a donc pas pu isoler son diff |
+
+### Résultats de la phase rouge
+
+- **Suite** (`target/surefire-reports`, 09:36:59Z) : 1 175 tests, dont **181 rouges** (52 + 42 + 32 + 27 + 28), tous dans les 16 classes nouvelles, plus 1 ignoré. Les 942 tests historiques restent verts.
+- **Implémentation : pas encore faite.** À régler à ce moment-là :
+  - port référentiel pour la clôture ;
+  - filtre `essentiel` appliqué avant la pagination ;
+  - liaison `@ConfigurationProperties` avec analyse ISO stricte ;
+  - `@Repository` à réactiver ;
+  - constructeur de compatibilité de `RuptureVue` à retirer ;
+  - corrections de l'ADR-004 ;
+  - cas `?essentiel=` vide à trancher (400 proposé).
+- **Incidents** :
+  - worktrees de l'outil partis de `98592c4` au lieu de la base courante (B0, B3, B4 ; B1 avancé sans perte) ;
+  - deux agents bloqués puis relancés ;
+  - collision de stubs entre B3 et B4.
+- **Hors vagues** : M1 (compteurs de tokens) et P1 (tarifs), deux agents sonnet d'instrumentation pour le bilan, sans commit. Le bilan lui-même est dans [BILAN-DEMO.md](BILAN-DEMO.md).
+
 ## Décisions à retenir pour la suite
 
 - **Audit** : écrit dans la même transaction que l'opération métier (proposé par T0.4, non demandé). Câblé ainsi en vague 3 et prouvé de bout en bout (un audit en échec annule la sauvegarde). Un audit en `REQUIRES_NEW` depuis une transaction déjà auditée est refusé. À confirmer par le client.
 - **Alternatives** : le use case (T1.1) trie par code du produit alternatif, puis par `ruptureId` selon la forme textuelle canonique de l'UUID (`UUID.compareTo` donne un autre ordre).
 - **Clôture** : une date de fin future est refusée (`ValidationMetierException`), **après** le contrôle d'accès du domaine : un non-déclarant reçoit `AccesRefuse`, pas une erreur de validation.
-- **Audit, contrainte UNIQUE** : sans `UNIQUE(hash_precedent)` en base, l'audit ne garantit l'absence de fourche qu'avec une seule instance. Migration V4 recommandée par le lot 5, **non faite**, à trancher.
+- **Audit, contrainte UNIQUE** : sans `UNIQUE(hash_precedent)` en base, l'audit ne garantit l'absence de fourche qu'avec une seule instance. Migration recommandée par le lot 5 (sous le nom V4), **non faite**, à trancher. Le numéro V4 est désormais pris par le référentiel `produits_essentiels` (`b708591`) : cette contrainte viendrait en V5 ou au-delà.
 - **Audit et transaction métier** : l'écriture rejoint la transaction appelante et tient un verrou jusqu'à son terme ; les services devront auditer en dernier. À confirmer.
 - **Mise à jour** : la commande ne porte que la fin estimée ; le plafond de 730 jours ne vaut qu'à la déclaration, la mise à jour vérifie seulement fin ≥ début (domaine).
 - **Alternatives** : l'ordre de saisie n'est pas conservé (relues triées par code produit) ; pas de colonne de position dans le schéma V1.

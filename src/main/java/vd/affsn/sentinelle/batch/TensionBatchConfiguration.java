@@ -8,6 +8,7 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +18,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import vd.affsn.sentinelle.application.port.out.HorlogePort;
 import vd.affsn.sentinelle.application.port.out.NotificationRegionPort;
+import vd.affsn.sentinelle.application.port.out.ReferentielProduitsPort;
 import vd.affsn.sentinelle.application.port.out.RuptureRepository;
 import vd.affsn.sentinelle.domain.tension.CalculateurTension;
 import vd.affsn.sentinelle.domain.tension.SeuilTension;
@@ -51,9 +53,11 @@ public class TensionBatchConfiguration {
 
     @Bean
     CalculTensionTasklet calculTensionTasklet(RuptureRepository ruptureRepository,
-            NotificationRegionPort fichierNotificationRegionAdapter, SeuilTension seuilTensionNocturne) {
+            NotificationRegionPort fichierNotificationRegionAdapter, SeuilTension seuilTensionNocturne,
+            ObjectProvider<ReferentielProduitsPort> referentiel) {
+        // Sans port de référentiel dans le contexte : aucun produit essentiel (comportement antérieur).
         return new CalculTensionTasklet(ruptureRepository, new CalculateurTension(),
-                fichierNotificationRegionAdapter, seuilTensionNocturne);
+                fichierNotificationRegionAdapter, seuilTensionNocturne, referentiel.getIfAvailable());
     }
 
     @Bean

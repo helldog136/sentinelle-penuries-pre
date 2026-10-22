@@ -15,6 +15,7 @@ import org.springframework.batch.repeat.RepeatStatus;
 import vd.affsn.sentinelle.application.port.out.NotificationRegionPort;
 import vd.affsn.sentinelle.application.port.out.NotificationRegionPort.Notification;
 import vd.affsn.sentinelle.application.port.out.NotificationRegionPort.RegionEnTension;
+import vd.affsn.sentinelle.application.port.out.ReferentielProduitsPort;
 import vd.affsn.sentinelle.application.port.out.RuptureRepository;
 import vd.affsn.sentinelle.domain.model.Region;
 import vd.affsn.sentinelle.domain.model.Rupture;
@@ -46,9 +47,18 @@ public final class CalculTensionTasklet implements Tasklet {
     private final CalculateurTension calculateur;
     private final NotificationRegionPort notificationPort;
     private final SeuilTension seuil;
+    /** {@code null} : aucun produit essentiel (comportement antérieur à ADR-004). */
+    private final ReferentielProduitsPort referentiel;
 
     public CalculTensionTasklet(RuptureRepository ruptureRepository, CalculateurTension calculateur,
             NotificationRegionPort notificationPort, SeuilTension seuil) {
+        this(ruptureRepository, calculateur, notificationPort, seuil, null);
+    }
+
+    /** ADR-004 : le référentiel fournit le caractère essentiel (poids x 2). */
+    public CalculTensionTasklet(RuptureRepository ruptureRepository, CalculateurTension calculateur,
+            NotificationRegionPort notificationPort, SeuilTension seuil, ReferentielProduitsPort referentiel) {
+        this.referentiel = referentiel;
         this.ruptureRepository = Objects.requireNonNull(ruptureRepository);
         this.calculateur = Objects.requireNonNull(calculateur);
         this.notificationPort = Objects.requireNonNull(notificationPort);
@@ -62,6 +72,9 @@ public final class CalculTensionTasklet implements Tasklet {
         LocalDate dateReference = DateReferenceJobParametersValidator.analyser(
                 stepExecution.getJobParameters().getString(DateReferenceJobParametersValidator.DATE_REFERENCE));
 
+        if (referentiel != null) {
+            throw new UnsupportedOperationException("à implémenter (ADR-004 : pondération des produits essentiels)");
+        }
         List<Rupture> ruptures = ruptureRepository.findActivesAu(dateReference);
         IndiceTension indice = calculateur.calculer(ruptures, dateReference);
 

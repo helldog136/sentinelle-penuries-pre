@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Map;
 
+import vd.affsn.sentinelle.domain.model.CodeProduit;
 import vd.affsn.sentinelle.domain.model.Region;
 import vd.affsn.sentinelle.domain.model.Rupture;
 
@@ -40,8 +41,22 @@ public final class CalculateurTension {
         return new IndiceTension(dateReference, parRegion);
     }
 
+    /** Variante pondérée : le poids d'une rupture d'un produit essentiel est doublé. */
+    public IndiceTension calculer(Collection<Rupture> ruptures, LocalDate dateReference,
+                                  java.util.function.Predicate<CodeProduit> estEssentiel) {
+        throw new UnsupportedOperationException("à implémenter");
+    }
+
     /** Poids d'une rupture à la date de référence, sans filtrage d'activité. */
     public double poids(Rupture rupture, LocalDate dateReference) {
+        return poids(rupture, dateReference, false);
+    }
+
+    /** Poids avec prise en compte du caractère essentiel (×2). */
+    public double poids(Rupture rupture, LocalDate dateReference, boolean essentiel) {
+        if (essentiel) {
+            throw new UnsupportedOperationException("à implémenter");
+        }
         long joursEcoules = Math.max(0, ChronoUnit.DAYS.between(rupture.periode().debut(), dateReference));
         return 1 + joursEcoules / 7.0;
     }

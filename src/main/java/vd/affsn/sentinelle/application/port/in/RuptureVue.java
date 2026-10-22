@@ -24,7 +24,21 @@ public record RuptureVue(RuptureId id,
                          Motif motif,
                          Set<Region> regions,
                          List<Alternative> alternatives,
-                         StatutRupture statut) {
+                         StatutRupture statut,
+                         boolean essentiel) {
+
+    /** Constructeur de compatibilité : produit non essentiel. */
+    public RuptureVue(RuptureId id, CodeProduit produit, IdentifiantDistributeur declarant, Periode periode,
+                      Optional<LocalDate> finEffective, Motif motif, Set<Region> regions,
+                      List<Alternative> alternatives, StatutRupture statut) {
+        this(id, produit, declarant, periode, finEffective, motif, regions, alternatives, statut, false);
+    }
+
+    public static RuptureVue depuis(Rupture rupture, boolean essentiel) {
+        return new RuptureVue(rupture.id(), rupture.produit(), rupture.declarant(), rupture.periode(),
+                rupture.finEffective(), rupture.motif(), rupture.regions(), rupture.alternatives(),
+                rupture.statut(), essentiel);
+    }
 
     public static RuptureVue depuis(Rupture rupture) {
         return new RuptureVue(
@@ -36,6 +50,7 @@ public record RuptureVue(RuptureId id,
                 rupture.motif(),
                 rupture.regions(),
                 rupture.alternatives(),
-                rupture.statut());
+                rupture.statut(),
+                false);
     }
 }

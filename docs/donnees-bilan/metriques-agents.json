@@ -1,0 +1,2418 @@
+{
+ "rows": [
+  {
+   "wave": "0a",
+   "desc": "T0.1 Scaffolding Maven",
+   "model_req": "haiku",
+   "model_real": [
+    "claude-haiku-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T11:52:13.499Z",
+   "end": "2026-10-21T11:56:51.990Z",
+   "agent_id": "ab28c71c91017f230",
+   "tool_use_id": "toolu_01JDnEFmxvmPqfU6gKDwTmgM",
+   "tokens": {
+    "input": 36,
+    "output": 150,
+    "cache_read": 1274619,
+    "cache_write": 92671
+   },
+   "nmsgs": 18,
+   "final_context_tokens_notification": 94382,
+   "notif_tokens_all": [
+    94382
+   ],
+   "dur_notif_s": 234.887,
+   "dur_ts_s": 278.4909999370575,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 4,
+   "model_short": "haiku"
+  },
+  {
+   "wave": "0a",
+   "desc": "T0.2 Domaine et tests rouges",
+   "model_req": "opus",
+   "model_real": [
+    "claude-opus-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T11:52:32.682Z",
+   "end": "2026-10-21T12:01:58.747Z",
+   "agent_id": "aa9f8b3f4d10bd6fe",
+   "tool_use_id": "toolu_01UuRjFp9N2C2Qk6LLmUywhq",
+   "tokens": {
+    "input": 36,
+    "output": 179,
+    "cache_read": 1566779,
+    "cache_write": 120336
+   },
+   "nmsgs": 18,
+   "final_context_tokens_notification": 123054,
+   "notif_tokens_all": [
+    123054
+   ],
+   "dur_notif_s": 541.639,
+   "dur_ts_s": 566.0650000572205,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 4,
+   "model_short": "opus"
+  },
+  {
+   "wave": "0a",
+   "desc": "T0.3 Contrats proto et OpenAPI",
+   "model_req": "opus",
+   "model_real": [
+    "claude-opus-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T11:52:43.833Z",
+   "end": "2026-10-21T11:57:03.672Z",
+   "agent_id": "aa216146386d807d6",
+   "tool_use_id": "toolu_018pD3KbzZTTVmZiYzicnsfo",
+   "tokens": {
+    "input": 24,
+    "output": 141,
+    "cache_read": 720497,
+    "cache_write": 82920
+   },
+   "nmsgs": 12,
+   "final_context_tokens_notification": 85144,
+   "notif_tokens_all": [
+    85144
+   ],
+   "dur_notif_s": 246.54,
+   "dur_ts_s": 259.83899998664856,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 4,
+   "model_short": "opus"
+  },
+  {
+   "wave": "0a",
+   "desc": "T0.4 ADR et documentation",
+   "model_req": "haiku",
+   "model_real": [
+    "claude-haiku-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T11:52:56.627Z",
+   "end": "2026-10-21T11:54:07.191Z",
+   "agent_id": "aae50d0c60e694b83",
+   "tool_use_id": "toolu_017RhcwD5EWSwxh4GVn9Ci1G",
+   "tokens": {
+    "input": 10,
+    "output": 40,
+    "cache_read": 247721,
+    "cache_write": 69264
+   },
+   "nmsgs": 5,
+   "final_context_tokens_notification": 70240,
+   "notif_tokens_all": [
+    70240
+   ],
+   "dur_notif_s": 70.035,
+   "dur_ts_s": 70.56399989128113,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 4,
+   "model_short": "haiku"
+  },
+  {
+   "wave": "0a-bis",
+   "desc": "F1 Aligner statut EN_COURS contrats",
+   "model_req": "haiku",
+   "model_real": [
+    "claude-haiku-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T12:02:34.467Z",
+   "end": "2026-10-21T12:04:22.418Z",
+   "agent_id": "a15eb0979bc1b7119",
+   "tool_use_id": "toolu_01G8EX1unagWvQfTFnsJzN3y",
+   "tokens": {
+    "input": 26,
+    "output": 106,
+    "cache_read": 775677,
+    "cache_write": 70585
+   },
+   "nmsgs": 13,
+   "final_context_tokens_notification": 71391,
+   "notif_tokens_all": [
+    71391
+   ],
+   "dur_notif_s": 101.684,
+   "dur_ts_s": 107.95099997520447,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 2,
+   "model_short": "haiku"
+  },
+  {
+   "wave": "0a-bis",
+   "desc": "F2 Alternatives par code produit",
+   "model_req": "sonnet",
+   "model_real": [
+    "claude-sonnet-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T12:02:40.433Z",
+   "end": "2026-10-21T12:03:34.626Z",
+   "agent_id": "ad4d2326ea9ee700d",
+   "tool_use_id": "toolu_01HqiMrwo1RfBrDe2acrUQte",
+   "tokens": {
+    "input": 10,
+    "output": 47,
+    "cache_read": 236225,
+    "cache_write": 63932
+   },
+   "nmsgs": 5,
+   "final_context_tokens_notification": 64999,
+   "notif_tokens_all": [
+    64999
+   ],
+   "dur_notif_s": 53.885,
+   "dur_ts_s": 54.192999839782715,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 2,
+   "model_short": "sonnet"
+  },
+  {
+   "wave": "1'",
+   "desc": "P1 Implémenter le domaine (vert)",
+   "model_req": "opus",
+   "model_real": [
+    "claude-opus-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T12:07:49.948Z",
+   "end": "2026-10-21T12:11:02.444Z",
+   "agent_id": "a28e890ce4bf1cbe4",
+   "tool_use_id": "toolu_01K4Qj7WqzrrhjaJ7SFUwKod",
+   "tokens": {
+    "input": 20,
+    "output": 226,
+    "cache_read": 736562,
+    "cache_write": 106265
+   },
+   "nmsgs": 10,
+   "final_context_tokens_notification": 108040,
+   "notif_tokens_all": [
+    108040
+   ],
+   "dur_notif_s": 166.94,
+   "dur_ts_s": 192.4960000514984,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 4,
+   "model_short": "opus"
+  },
+  {
+   "wave": "1'",
+   "desc": "P2 Schéma Flyway V1 à V3",
+   "model_req": "sonnet",
+   "model_real": [
+    "claude-sonnet-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T12:08:03.542Z",
+   "end": "2026-10-21T12:10:34.882Z",
+   "agent_id": "af291ff3fe5fa4e54",
+   "tool_use_id": "toolu_01FoLPiKTPe3e2o2DvxnFGMo",
+   "tokens": {
+    "input": 12,
+    "output": 106,
+    "cache_read": 345935,
+    "cache_write": 32584
+   },
+   "nmsgs": 6,
+   "final_context_tokens_notification": 71001,
+   "notif_tokens_all": [
+    71001
+   ],
+   "dur_notif_s": 139.368,
+   "dur_ts_s": 151.3399999141693,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 4,
+   "model_short": "sonnet"
+  },
+  {
+   "wave": "1'",
+   "desc": "P3 Test ArchUnit hexagonal",
+   "model_req": "sonnet",
+   "model_real": [
+    "claude-sonnet-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T12:08:10.538Z",
+   "end": "2026-10-21T12:09:21.152Z",
+   "agent_id": "a3802f3bdfee3c551",
+   "tool_use_id": "toolu_019WGUVC56aY7Zp6xEDnEkPx",
+   "tokens": {
+    "input": 8,
+    "output": 48,
+    "cache_read": 213020,
+    "cache_write": 27326
+   },
+   "nmsgs": 4,
+   "final_context_tokens_notification": 65282,
+   "notif_tokens_all": [
+    65282
+   ],
+   "dur_notif_s": 65.618,
+   "dur_ts_s": 70.61399984359741,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 4,
+   "model_short": "sonnet"
+  },
+  {
+   "wave": "1'",
+   "desc": "P4 Aligner contrats sur 280",
+   "model_req": "haiku",
+   "model_real": [
+    "claude-haiku-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T12:08:15.023Z",
+   "end": "2026-10-21T12:08:53.084Z",
+   "agent_id": "a5b79fde6b48e570b",
+   "tool_use_id": "toolu_01DxBri5bDWiPVcjfdtN21gV",
+   "tokens": {
+    "input": 12,
+    "output": 31,
+    "cache_read": 328084,
+    "cache_write": 24471
+   },
+   "nmsgs": 6,
+   "final_context_tokens_notification": 61896,
+   "notif_tokens_all": [
+    61896
+   ],
+   "dur_notif_s": 37.529,
+   "dur_ts_s": 38.06100010871887,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 4,
+   "model_short": "haiku"
+  },
+  {
+   "wave": "2",
+   "desc": "S0 Clé de contexte gRPC partagée",
+   "model_req": "haiku",
+   "model_real": [
+    "claude-haiku-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T12:15:05.389Z",
+   "end": "2026-10-21T12:16:10.402Z",
+   "agent_id": "a6574913929a88959",
+   "tool_use_id": "toolu_01TFwuQcqnhr2aGvsMytC79T",
+   "tokens": {
+    "input": 22,
+    "output": 291,
+    "cache_read": 675674,
+    "cache_write": 72204
+   },
+   "nmsgs": 11,
+   "final_context_tokens_notification": null,
+   "notif_tokens_all": [],
+   "dur_notif_s": null,
+   "dur_ts_s": 65.01300001144409,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": false,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 1,
+   "model_short": "haiku"
+  },
+  {
+   "wave": "2",
+   "desc": "Lot 1 Sécurité JWT (TDD phase A)",
+   "model_req": "opus",
+   "model_real": [
+    "claude-opus-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "worktree",
+   "launch": "2026-10-21T12:18:17.943Z",
+   "end": "2026-10-21T12:48:07.254Z",
+   "agent_id": "a7c8cbec24f02f8b1",
+   "tool_use_id": "toolu_01LcEiWG6r55kNUaRmkTHSx7",
+   "tokens": {
+    "input": 100,
+    "output": 1040,
+    "cache_read": 6522610,
+    "cache_write": 401948
+   },
+   "nmsgs": 49,
+   "final_context_tokens_notification": 221007,
+   "notif_tokens_all": [
+    189710,
+    221007
+   ],
+   "dur_notif_s": 1395.956,
+   "dur_ts_s": 1478.0139999389648,
+   "runs": 2,
+   "resumed": 1,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 7,
+   "model_short": "opus"
+  },
+  {
+   "wave": "2",
+   "desc": "Lot 2 Adaptateur gRPC (TDD phase A)",
+   "model_req": "sonnet",
+   "model_real": [
+    "claude-sonnet-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "worktree",
+   "launch": "2026-10-21T12:18:32.464Z",
+   "end": "2026-10-21T13:02:44.384Z",
+   "agent_id": "ad31783d7524825c2",
+   "tool_use_id": "toolu_011Yn8drob9Z7k9cLazT77xN",
+   "tokens": {
+    "input": 216,
+    "output": 1369,
+    "cache_read": 17808581,
+    "cache_write": 370911
+   },
+   "nmsgs": 106,
+   "final_context_tokens_notification": 247929,
+   "notif_tokens_all": [
+    166143,
+    177506,
+    247929
+   ],
+   "dur_notif_s": 2020.473,
+   "dur_ts_s": 2090.473000049591,
+   "runs": 3,
+   "resumed": 2,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 7,
+   "model_short": "sonnet"
+  },
+  {
+   "wave": "2",
+   "desc": "Lot 3 API REST (TDD phase A)",
+   "model_req": "sonnet",
+   "model_real": [
+    "claude-sonnet-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "worktree",
+   "launch": "2026-10-21T12:18:44.797Z",
+   "end": "2026-10-21T12:28:42.683Z",
+   "agent_id": "aba84d9284dc12675",
+   "tool_use_id": "toolu_01RG6V8LMh5Tj56NbFyK7ZcK",
+   "tokens": {
+    "input": 50,
+    "output": 561,
+    "cache_read": 2114885,
+    "cache_write": 122800
+   },
+   "nmsgs": 24,
+   "final_context_tokens_notification": 123968,
+   "notif_tokens_all": [
+    112794,
+    123968
+   ],
+   "dur_notif_s": 388.799,
+   "dur_ts_s": 444.3200001716614,
+   "runs": 2,
+   "resumed": 1,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 7,
+   "model_short": "sonnet"
+  },
+  {
+   "wave": "2",
+   "desc": "Lot 4 Job Spring Batch tension",
+   "model_req": "opus",
+   "model_real": [
+    "claude-opus-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "worktree",
+   "launch": "2026-10-21T12:18:59.056Z",
+   "end": "2026-10-21T12:27:28.578Z",
+   "agent_id": "a53ea7dc2b9f3229b",
+   "tool_use_id": "toolu_01NiS69ueFt3tTULvaGEFByB",
+   "tokens": {
+    "input": 36,
+    "output": 209,
+    "cache_read": 1322267,
+    "cache_write": 108371
+   },
+   "nmsgs": 18,
+   "final_context_tokens_notification": 111739,
+   "notif_tokens_all": [
+    111739
+   ],
+   "dur_notif_s": 468.905,
+   "dur_ts_s": 509.5220000743866,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 7,
+   "model_short": "opus"
+  },
+  {
+   "wave": "2",
+   "desc": "Lot 5 Journal d'audit immuable",
+   "model_req": "opus",
+   "model_real": [
+    "claude-opus-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "worktree",
+   "launch": "2026-10-21T12:19:11.204Z",
+   "end": "2026-10-21T12:27:51.890Z",
+   "agent_id": "ad66d66f4f6839112",
+   "tool_use_id": "toolu_01P5Uzfe6cc3XZ4QkSRPnyzb",
+   "tokens": {
+    "input": 32,
+    "output": 4296,
+    "cache_read": 1197858,
+    "cache_write": 110578
+   },
+   "nmsgs": 16,
+   "final_context_tokens_notification": 114680,
+   "notif_tokens_all": [
+    114680
+   ],
+   "dur_notif_s": 492.284,
+   "dur_ts_s": 520.6860001087189,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 7,
+   "model_short": "opus"
+  },
+  {
+   "wave": "2",
+   "desc": "Lot 6 Persistance JPA et tests H2",
+   "model_req": "sonnet",
+   "model_real": [
+    "claude-sonnet-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "worktree",
+   "launch": "2026-10-21T12:19:23.722Z",
+   "end": "2026-10-21T12:20:14.040Z",
+   "agent_id": "adbf9857947633490",
+   "tool_use_id": "toolu_014MoYDHC8Bfto7TzA2VgCLw",
+   "tokens": {
+    "input": 12,
+    "output": 64,
+    "cache_read": 290215,
+    "cache_write": 60651
+   },
+   "nmsgs": 6,
+   "final_context_tokens_notification": 61379,
+   "notif_tokens_all": [
+    61379
+   ],
+   "dur_notif_s": 34.361,
+   "dur_ts_s": 50.318000078201294,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 7,
+   "model_short": "sonnet"
+  },
+  {
+   "wave": "2",
+   "desc": "Lot 7 Données de démo et README",
+   "model_req": "haiku",
+   "model_real": [
+    "claude-haiku-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "worktree",
+   "launch": "2026-10-21T12:19:39.068Z",
+   "end": "2026-10-21T12:31:26.370Z",
+   "agent_id": "acac327a52205cc70",
+   "tool_use_id": "toolu_01CGgkJwD4S1Y47e52Vfn4cm",
+   "tokens": {
+    "input": 128,
+    "output": 883,
+    "cache_read": 8635918,
+    "cache_write": 193083
+   },
+   "nmsgs": 60,
+   "final_context_tokens_notification": 193854,
+   "notif_tokens_all": [
+    193854
+   ],
+   "dur_notif_s": 706.256,
+   "dur_ts_s": 707.3019998073578,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 2,
+   "same_message_launch_count": 7,
+   "model_short": "haiku"
+  },
+  {
+   "wave": "2",
+   "desc": "Lot 6 Persistance JPA (relance)",
+   "model_req": "sonnet",
+   "model_real": [
+    "claude-sonnet-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T12:21:02.431Z",
+   "end": "2026-10-21T13:07:30.259Z",
+   "agent_id": "a740d9a690469471b",
+   "tool_use_id": "toolu_0173GHVDs5AmwU3KNBWRWQiA",
+   "tokens": {
+    "input": 32,
+    "output": 363,
+    "cache_read": 1163784,
+    "cache_write": 214831
+   },
+   "nmsgs": 15,
+   "final_context_tokens_notification": 111340,
+   "notif_tokens_all": [
+    111340
+   ],
+   "dur_notif_s": 2787.411,
+   "dur_ts_s": 2787.8280000686646,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 1,
+   "same_message_launch_count": 1,
+   "model_short": "sonnet"
+  },
+  {
+   "wave": "2'",
+   "desc": "C1 Commande de mise à jour sans Periode",
+   "model_req": "sonnet",
+   "model_real": [
+    "claude-sonnet-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T12:33:11.406Z",
+   "end": "2026-10-21T12:35:52.280Z",
+   "agent_id": "aa1d5e9b81913d7bc",
+   "tool_use_id": "toolu_012JEh3ZiKNi46as7HF8aqvo",
+   "tokens": {
+    "input": 12,
+    "output": 125,
+    "cache_read": 326108,
+    "cache_write": 23397
+   },
+   "nmsgs": 6,
+   "final_context_tokens_notification": 60688,
+   "notif_tokens_all": [
+    60688
+   ],
+   "dur_notif_s": 152.409,
+   "dur_ts_s": 160.87400007247925,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 2,
+   "model_short": "sonnet"
+  },
+  {
+   "wave": "2'",
+   "desc": "C2 Corriger les contrats proto et OpenAPI",
+   "model_req": "haiku",
+   "model_real": [
+    "claude-haiku-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T12:33:19.468Z",
+   "end": "2026-10-21T12:37:44.362Z",
+   "agent_id": "aba3f58f5d355a18c",
+   "tool_use_id": "toolu_01SRyZtvt4saY2zrF9jtcpxf",
+   "tokens": {
+    "input": 24,
+    "output": 10280,
+    "cache_read": 976393,
+    "cache_write": 59347
+   },
+   "nmsgs": 12,
+   "final_context_tokens_notification": 97402,
+   "notif_tokens_all": [
+    97402
+   ],
+   "dur_notif_s": 264.489,
+   "dur_ts_s": 264.89400005340576,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 2,
+   "model_short": "haiku"
+  },
+  {
+   "wave": "2'",
+   "desc": "C3 Cohérence documentaire et contrats",
+   "model_req": "haiku",
+   "model_real": [
+    "claude-haiku-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T12:40:24.134Z",
+   "end": "2026-10-21T12:41:10.440Z",
+   "agent_id": "ac60904e849044685",
+   "tool_use_id": "toolu_01KutGv2E3Hm3rGfWiMhCGtB",
+   "tokens": {
+    "input": 14,
+    "output": 54,
+    "cache_read": 419800,
+    "cache_write": 38987
+   },
+   "nmsgs": 7,
+   "final_context_tokens_notification": 77077,
+   "notif_tokens_all": [
+    77077
+   ],
+   "dur_notif_s": 43.946,
+   "dur_ts_s": 46.305999994277954,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 1,
+   "model_short": "haiku"
+  },
+  {
+   "wave": "3",
+   "desc": "R1 Tests rétroactifs du job batch",
+   "model_req": "opus",
+   "model_real": [
+    "claude-opus-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T13:10:41.973Z",
+   "end": "2026-10-21T13:29:04.106Z",
+   "agent_id": "aec09809a6263e479",
+   "tool_use_id": "toolu_01AzZHWFcHM3BJJhpPyNnQGU",
+   "tokens": {
+    "input": 62,
+    "output": 367,
+    "cache_read": 4565186,
+    "cache_write": 214671
+   },
+   "nmsgs": 31,
+   "final_context_tokens_notification": 218285,
+   "notif_tokens_all": [
+    218285
+   ],
+   "dur_notif_s": 1067.605,
+   "dur_ts_s": 1102.1329998970032,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 3,
+   "model_short": "opus"
+  },
+  {
+   "wave": "3",
+   "desc": "R2 Tests rétroactifs du journal d'audit",
+   "model_req": "opus",
+   "model_real": [
+    "claude-opus-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T13:10:58.975Z",
+   "end": "2026-10-21T13:25:54.321Z",
+   "agent_id": "a4c3254469982309a",
+   "tool_use_id": "toolu_01HA15GqiijrVmtVqbvwCXw7",
+   "tokens": {
+    "input": 42,
+    "output": 258,
+    "cache_read": 2271514,
+    "cache_write": 160541
+   },
+   "nmsgs": 21,
+   "final_context_tokens_notification": 164593,
+   "notif_tokens_all": [
+    164593
+   ],
+   "dur_notif_s": 877.817,
+   "dur_ts_s": 895.3460001945496,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 3,
+   "model_short": "opus"
+  },
+  {
+   "wave": "3",
+   "desc": "S1 Services applicatifs (TDD phase A)",
+   "model_req": "sonnet",
+   "model_real": [
+    "claude-sonnet-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T13:11:15.911Z",
+   "end": "2026-10-21T13:19:34.871Z",
+   "agent_id": "a516418f16f0eaac1",
+   "tool_use_id": "toolu_0124w9n2vrYup9RN2hwMKY1a",
+   "tokens": {
+    "input": 30,
+    "output": 194,
+    "cache_read": 1185135,
+    "cache_write": 81423
+   },
+   "nmsgs": 14,
+   "final_context_tokens_notification": 119000,
+   "notif_tokens_all": [
+    107744,
+    119000
+   ],
+   "dur_notif_s": 414.823,
+   "dur_ts_s": 416.17400002479553,
+   "runs": 2,
+   "resumed": 1,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 3,
+   "model_short": "sonnet"
+  },
+  {
+   "wave": "3",
+   "desc": "P5 pom : exclusion JaCoCo et PIT",
+   "model_req": "sonnet",
+   "model_real": [
+    "claude-sonnet-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T13:11:37.671Z",
+   "end": "2026-10-21T13:13:34.711Z",
+   "agent_id": "a92fee120bbfbf15d",
+   "tool_use_id": "toolu_01TAAZrhU5cwdZC737Ndye3H",
+   "tokens": {
+    "input": 10,
+    "output": 56,
+    "cache_read": 282303,
+    "cache_write": 30358
+   },
+   "nmsgs": 5,
+   "final_context_tokens_notification": 68424,
+   "notif_tokens_all": [
+    68424
+   ],
+   "dur_notif_s": 116.664,
+   "dur_ts_s": 117.03999996185303,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 1,
+   "model_short": "sonnet"
+  },
+  {
+   "wave": "3",
+   "desc": "B1 B2 Corriger fourche d'audit REQUIRES_NEW",
+   "model_req": "opus",
+   "model_real": [
+    "claude-opus-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T13:27:44.795Z",
+   "end": "2026-10-21T13:38:09.949Z",
+   "agent_id": "ac6b394861ce55d2a",
+   "tool_use_id": "toolu_01McuGo3DXm9aRRTB7JFHdih",
+   "tokens": {
+    "input": 18,
+    "output": 96,
+    "cache_read": 561947,
+    "cache_write": 35535
+   },
+   "nmsgs": 9,
+   "final_context_tokens_notification": 73984,
+   "notif_tokens_all": [
+    73984
+   ],
+   "dur_notif_s": 614.314,
+   "dur_ts_s": 625.1539998054504,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 2,
+   "model_short": "opus"
+  },
+  {
+   "wave": "3",
+   "desc": "B3 Corriger assainissement du résumé d'audit",
+   "model_req": "sonnet",
+   "model_real": [
+    "claude-sonnet-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T13:27:55.275Z",
+   "end": "2026-10-21T13:35:07.046Z",
+   "agent_id": "a9805a5f9a33bedbc",
+   "tool_use_id": "toolu_01RxxkEosKa8EqVYiWDnUPa6",
+   "tokens": {
+    "input": 18,
+    "output": 162,
+    "cache_read": 487499,
+    "cache_write": 36746
+   },
+   "nmsgs": 8,
+   "final_context_tokens_notification": 74375,
+   "notif_tokens_all": [
+    69561,
+    74375
+   ],
+   "dur_notif_s": 689.889,
+   "dur_ts_s": 419.3949999809265,
+   "runs": 2,
+   "resumed": 1,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 2,
+   "model_short": "sonnet"
+  },
+  {
+   "wave": "3",
+   "desc": "B4 Durcissement du job batch",
+   "model_req": "sonnet",
+   "model_real": [
+    "claude-sonnet-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T13:31:57.265Z",
+   "end": "2026-10-21T13:39:48.058Z",
+   "agent_id": "abdbeed52853be47a",
+   "tool_use_id": "toolu_01D5eJCc3VJpbA52WmfCbcEP",
+   "tokens": {
+    "input": 30,
+    "output": 185,
+    "cache_read": 1233250,
+    "cache_write": 67791
+   },
+   "nmsgs": 15,
+   "final_context_tokens_notification": 107028,
+   "notif_tokens_all": [
+    107028
+   ],
+   "dur_notif_s": 470.331,
+   "dur_ts_s": 470.79299998283386,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 1,
+   "model_short": "sonnet"
+  },
+  {
+   "wave": "3",
+   "desc": "W1 Câblage Spring, horloge et transactions",
+   "model_req": "sonnet",
+   "model_real": [
+    "claude-sonnet-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T13:44:54.151Z",
+   "end": "2026-10-21T13:52:15.060Z",
+   "agent_id": "a6da0eee17c2ea48f",
+   "tool_use_id": "toolu_012v1k4AnuoMqrJkqAcHk6LG",
+   "tokens": {
+    "input": 22,
+    "output": 467,
+    "cache_read": 822661,
+    "cache_write": 57498
+   },
+   "nmsgs": 11,
+   "final_context_tokens_notification": 95993,
+   "notif_tokens_all": [
+    95993
+   ],
+   "dur_notif_s": 440.458,
+   "dur_ts_s": 440.90899991989136,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 1,
+   "model_short": "sonnet"
+  },
+  {
+   "wave": "3",
+   "desc": "E1 Test de bout en bout gRPC REST batch",
+   "model_req": "opus",
+   "model_real": [
+    "claude-opus-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T13:54:26.621Z",
+   "end": "2026-10-21T14:11:35.407Z",
+   "agent_id": "a9a0301aae0d06fb7",
+   "tool_use_id": "toolu_01X9GBA3HM1LSWJNT5Tk29aJ",
+   "tokens": {
+    "input": 72,
+    "output": 819,
+    "cache_read": 7474412,
+    "cache_write": 300594
+   },
+   "nmsgs": 36,
+   "final_context_tokens_notification": 304033,
+   "notif_tokens_all": [
+    304033
+   ],
+   "dur_notif_s": 1028.242,
+   "dur_ts_s": 1028.7860000133514,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 1,
+   "model_short": "opus"
+  },
+  {
+   "wave": "3",
+   "desc": "B5 Corriger les 500 REST en 404 405 406",
+   "model_req": "sonnet",
+   "model_real": [
+    "claude-sonnet-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T14:13:47.534Z",
+   "end": "2026-10-21T14:17:00.292Z",
+   "agent_id": "af0c9c28ddc310089",
+   "tool_use_id": "toolu_0182gji46wTiz7rjS34cZAhH",
+   "tokens": {
+    "input": 16,
+    "output": 180,
+    "cache_read": 442420,
+    "cache_write": 67673
+   },
+   "nmsgs": 8,
+   "final_context_tokens_notification": 68775,
+   "notif_tokens_all": [
+    68775
+   ],
+   "dur_notif_s": 179.788,
+   "dur_ts_s": 192.75800013542175,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 2,
+   "model_short": "sonnet"
+  },
+  {
+   "wave": "3",
+   "desc": "B6 Conflit de verrou optimiste en ABORTED",
+   "model_req": "sonnet",
+   "model_real": [
+    "claude-sonnet-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T14:14:00.110Z",
+   "end": "2026-10-21T14:17:20.809Z",
+   "agent_id": "a484c8444fc19ab0c",
+   "tool_use_id": "toolu_01SbceaSDmvLQt6uxcqWnD7G",
+   "tokens": {
+    "input": 10,
+    "output": 65,
+    "cache_read": 275873,
+    "cache_write": 84508
+   },
+   "nmsgs": 5,
+   "final_context_tokens_notification": 86352,
+   "notif_tokens_all": [
+    86352
+   ],
+   "dur_notif_s": 200.301,
+   "dur_ts_s": 200.69900012016296,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 2,
+   "model_short": "sonnet"
+  },
+  {
+   "wave": "3",
+   "desc": "D1 Mise à jour de la documentation",
+   "model_req": "haiku",
+   "model_real": [
+    "claude-haiku-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T14:21:18.589Z",
+   "end": "2026-10-21T14:26:52.677Z",
+   "agent_id": "ab134ee0e8508ea89",
+   "tool_use_id": "toolu_01S9zHpX46CHVpbwBCRSNack",
+   "tokens": {
+    "input": 70,
+    "output": 4440,
+    "cache_read": 4494881,
+    "cache_write": 179628
+   },
+   "nmsgs": 35,
+   "final_context_tokens_notification": 182936,
+   "notif_tokens_all": [
+    182936
+   ],
+   "dur_notif_s": 333.654,
+   "dur_ts_s": 334.0880000591278,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 1,
+   "model_short": "haiku"
+  },
+  {
+   "wave": "3",
+   "desc": "P6 Corriger la portée PIT dans le pom",
+   "model_req": "sonnet",
+   "model_real": [
+    "claude-sonnet-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T14:21:56.840Z",
+   "end": "2026-10-21T14:26:49.273Z",
+   "agent_id": "a709b1a9ef652a299",
+   "tool_use_id": "toolu_01DaLtQL9MHn9c6oC6MNjNYq",
+   "tokens": {
+    "input": 14,
+    "output": 120,
+    "cache_read": 403384,
+    "cache_write": 29514
+   },
+   "nmsgs": 7,
+   "final_context_tokens_notification": 67418,
+   "notif_tokens_all": [
+    67418
+   ],
+   "dur_notif_s": 291.921,
+   "dur_ts_s": 292.43300008773804,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 1,
+   "model_short": "sonnet"
+  },
+  {
+   "wave": "3",
+   "desc": "D2 Hygiène : gitignore, commentaire batch, type d'erreur",
+   "model_req": "haiku",
+   "model_real": [
+    "claude-haiku-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T14:27:24.853Z",
+   "end": "2026-10-21T14:28:13.510Z",
+   "agent_id": "ac089c5fb1d9b08a1",
+   "tool_use_id": "toolu_012AcUSvRotWkPHcya2X1d3e",
+   "tokens": {
+    "input": 16,
+    "output": 48,
+    "cache_read": 498539,
+    "cache_write": 38051
+   },
+   "nmsgs": 8,
+   "final_context_tokens_notification": 75877,
+   "notif_tokens_all": [
+    75877
+   ],
+   "dur_notif_s": 48.038,
+   "dur_ts_s": 48.65700006484985,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 1,
+   "model_short": "haiku"
+  },
+  {
+   "wave": "3",
+   "desc": "F1 Rendre le test d'interblocage déterministe",
+   "model_req": "opus",
+   "model_real": [
+    "claude-opus-5-5"
+   ],
+   "subagent_type": "general-purpose",
+   "isolation": "aucune",
+   "launch": "2026-10-21T14:29:12.200Z",
+   "end": "2026-10-21T14:50:22.365Z",
+   "agent_id": "af7dcf1d584d3fbca",
+   "tool_use_id": "toolu_01JfkYiEWoeESEKfzhX25TRc",
+   "tokens": {
+    "input": 44,
+    "output": 585,
+    "cache_read": 1702633,
+    "cache_write": 196780
+   },
+   "nmsgs": 22,
+   "final_context_tokens_notification": 101043,
+   "notif_tokens_all": [
+    101043
+   ],
+   "dur_notif_s": 1269.777,
+   "dur_ts_s": 1270.164999961853,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": false,
+   "interim_notifs": 0,
+   "same_message_launch_count": 1,
+   "model_short": "opus"
+  },
+  {
+   "wave": "A",
+   "desc": "A0 ADR-004 règle essentiel",
+   "model_req": "opus",
+   "model_real": [
+    "claude-opus-5-5"
+   ],
+   "subagent_type": null,
+   "isolation": "worktree",
+   "launch": "2026-10-22T09:12:14.157Z",
+   "end": "2026-10-22T09:18:25.194Z",
+   "agent_id": "a51359c31e541c612",
+   "tool_use_id": "toolu_01Udj7uqytc9CQAkuKvLUcTQ",
+   "tokens": {
+    "input": 22,
+    "output": 30355,
+    "cache_read": 829484,
+    "cache_write": 125799
+   },
+   "nmsgs": 11,
+   "final_context_tokens_notification": 129467,
+   "notif_tokens_all": [
+    129467
+   ],
+   "dur_notif_s": 345.372,
+   "dur_ts_s": 371.0369999408722,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": true,
+   "interim_notifs": 0,
+   "same_message_launch_count": 5,
+   "model_short": "opus"
+  },
+  {
+   "wave": "A",
+   "desc": "A1 contrats additifs proto/OpenAPI",
+   "model_req": "opus",
+   "model_real": [
+    "claude-opus-5-5"
+   ],
+   "subagent_type": null,
+   "isolation": "worktree",
+   "launch": "2026-10-22T09:12:21.448Z",
+   "end": "2026-10-22T09:14:38.031Z",
+   "agent_id": "a3655cbccaaf22af1",
+   "tool_use_id": "toolu_01ChDSRmkqEBB4NYRTy2cLik",
+   "tokens": {
+    "input": 18,
+    "output": 8491,
+    "cache_read": 577620,
+    "cache_write": 80994
+   },
+   "nmsgs": 9,
+   "final_context_tokens_notification": 83347,
+   "notif_tokens_all": [
+    83347
+   ],
+   "dur_notif_s": 118.114,
+   "dur_ts_s": 136.5829999446869,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": true,
+   "interim_notifs": 0,
+   "same_message_launch_count": 5,
+   "model_short": "opus"
+  },
+  {
+   "wave": "A",
+   "desc": "A2 squelettes domaine/application",
+   "model_req": "sonnet",
+   "model_real": [
+    "claude-sonnet-5-5"
+   ],
+   "subagent_type": null,
+   "isolation": "worktree",
+   "launch": "2026-10-22T09:12:31.749Z",
+   "end": "2026-10-22T09:15:18.020Z",
+   "agent_id": "aef284d7e52feddd0",
+   "tool_use_id": "toolu_01KKXXGfiBJeFfCNVks1sAXt",
+   "tokens": {
+    "input": 14,
+    "output": 9845,
+    "cache_read": 391307,
+    "cache_write": 74360
+   },
+   "nmsgs": 7,
+   "final_context_tokens_notification": 75756,
+   "notif_tokens_all": [
+    75756
+   ],
+   "dur_notif_s": 158.221,
+   "dur_ts_s": 166.27099990844727,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": true,
+   "interim_notifs": 0,
+   "same_message_launch_count": 5,
+   "model_short": "sonnet"
+  },
+  {
+   "wave": "A",
+   "desc": "A3 migration V4 référentiel",
+   "model_req": "sonnet",
+   "model_real": [
+    "claude-sonnet-5-5"
+   ],
+   "subagent_type": null,
+   "isolation": "worktree",
+   "launch": "2026-10-22T09:12:36.341Z",
+   "end": "2026-10-22T09:15:18.170Z",
+   "agent_id": "a819efc996de07852",
+   "tool_use_id": "toolu_01UmXE9KSpMG1AZDHMaZzDK9",
+   "tokens": {
+    "input": 14,
+    "output": 3276,
+    "cache_read": 373911,
+    "cache_write": 68145
+   },
+   "nmsgs": 7,
+   "final_context_tokens_notification": 69131,
+   "notif_tokens_all": [
+    69131
+   ],
+   "dur_notif_s": 158.409,
+   "dur_ts_s": 161.8289999961853,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": true,
+   "interim_notifs": 0,
+   "same_message_launch_count": 5,
+   "model_short": "sonnet"
+  },
+  {
+   "wave": "A",
+   "desc": "A4 propriété date entrée en vigueur",
+   "model_req": "haiku",
+   "model_real": [
+    "claude-haiku-5-5"
+   ],
+   "subagent_type": null,
+   "isolation": "worktree",
+   "launch": "2026-10-22T09:12:39.198Z",
+   "end": "2026-10-22T09:14:00.831Z",
+   "agent_id": "ab939a9f50f282d46",
+   "tool_use_id": "toolu_01H9bz4ZfiEcmzBHQew5nXyh",
+   "tokens": {
+    "input": 14,
+    "output": 4639,
+    "cache_read": 364646,
+    "cache_write": 67377
+   },
+   "nmsgs": 7,
+   "final_context_tokens_notification": 68417,
+   "notif_tokens_all": [
+    68417
+   ],
+   "dur_notif_s": 81.012,
+   "dur_ts_s": 81.63300013542175,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": true,
+   "interim_notifs": 0,
+   "same_message_launch_count": 5,
+   "model_short": "haiku"
+  },
+  {
+   "wave": "B (tests rouges)",
+   "desc": "B0 aligner nom propriété",
+   "model_req": "haiku",
+   "model_real": [
+    "claude-haiku-5-5"
+   ],
+   "subagent_type": null,
+   "isolation": "worktree",
+   "launch": "2026-10-22T09:19:01.077Z",
+   "end": "2026-10-22T09:20:23.333Z",
+   "agent_id": "a7e4699b96343e428",
+   "tool_use_id": "toolu_01NmJq2ZY7NRX4K4LvLVjjK2",
+   "tokens": {
+    "input": 14,
+    "output": 3645,
+    "cache_read": 386831,
+    "cache_write": 79434
+   },
+   "nmsgs": 7,
+   "final_context_tokens_notification": 80603,
+   "notif_tokens_all": [
+    80603
+   ],
+   "dur_notif_s": 42.163,
+   "dur_ts_s": 82.25600004196167,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": true,
+   "interim_notifs": 0,
+   "same_message_launch_count": 6,
+   "model_short": "haiku"
+  },
+  {
+   "wave": "B (tests rouges)",
+   "desc": "B1 tests règle pure et pondération",
+   "model_req": "opus",
+   "model_real": [
+    "claude-opus-5-5"
+   ],
+   "subagent_type": null,
+   "isolation": "worktree",
+   "launch": "2026-10-22T09:19:08.496Z",
+   "end": "2026-10-22T09:30:20.544Z",
+   "agent_id": "aa2cd28710e4ad962",
+   "tool_use_id": "toolu_016Yv19s3qBfkRjXQC7AQeUE",
+   "tokens": {
+    "input": 56,
+    "output": 27362,
+    "cache_read": 2718259,
+    "cache_write": 92313
+   },
+   "nmsgs": 28,
+   "final_context_tokens_notification": 131653,
+   "notif_tokens_all": [
+    131653
+   ],
+   "dur_notif_s": 639.79,
+   "dur_ts_s": 672.0479998588562,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": true,
+   "interim_notifs": 0,
+   "same_message_launch_count": 6,
+   "model_short": "opus"
+  },
+  {
+   "wave": "B (tests rouges)",
+   "desc": "B2 tests services déclarer/mettre à jour",
+   "model_req": "opus",
+   "model_real": [
+    "claude-opus-5-5"
+   ],
+   "subagent_type": null,
+   "isolation": "worktree",
+   "launch": "2026-10-22T09:19:16.075Z",
+   "end": "2026-10-22T09:30:41.897Z",
+   "agent_id": "a30ea5318fc772a9b",
+   "tool_use_id": "toolu_01WwTRsZyZdVU9USBXzXQqYU",
+   "tokens": {
+    "input": 58,
+    "output": 34143,
+    "cache_read": 3007745,
+    "cache_write": 106932
+   },
+   "nmsgs": 29,
+   "final_context_tokens_notification": 147169,
+   "notif_tokens_all": [
+    147169
+   ],
+   "dur_notif_s": 661.141,
+   "dur_ts_s": 685.8220000267029,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": true,
+   "interim_notifs": 0,
+   "same_message_launch_count": 6,
+   "model_short": "opus"
+  },
+  {
+   "wave": "B (tests rouges)",
+   "desc": "B3 tests gRPC REST référentiel",
+   "model_req": "sonnet",
+   "model_real": [
+    "claude-sonnet-5-5"
+   ],
+   "subagent_type": null,
+   "isolation": "worktree",
+   "launch": "2026-10-22T09:19:23.855Z",
+   "end": "2026-10-22T09:20:31.667Z",
+   "agent_id": "a4f1db1a4efe2ef8d",
+   "tool_use_id": "toolu_01FanorX1YYoAEE5UebtJh2A",
+   "tokens": {
+    "input": 16,
+    "output": 2206,
+    "cache_read": 454486,
+    "cache_write": 26254
+   },
+   "nmsgs": 8,
+   "final_context_tokens_notification": 63734,
+   "notif_tokens_all": [
+    63734
+   ],
+   "dur_notif_s": 50.608,
+   "dur_ts_s": 67.81200003623962,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": true,
+   "interim_notifs": 0,
+   "same_message_launch_count": 6,
+   "model_short": "sonnet"
+  },
+  {
+   "wave": "B (tests rouges)",
+   "desc": "B4 tests batch tension essentiels",
+   "model_req": "sonnet",
+   "model_real": [
+    "claude-sonnet-5-5"
+   ],
+   "subagent_type": null,
+   "isolation": "worktree",
+   "launch": "2026-10-22T09:19:29.928Z",
+   "end": "2026-10-22T09:27:25.056Z",
+   "agent_id": "a1209fd817f8c1d45",
+   "tool_use_id": "toolu_01NGpnq48gbAfsE8GvdYRLN7",
+   "tokens": {
+    "input": 50,
+    "output": 35218,
+    "cache_read": 2421342,
+    "cache_write": 109239
+   },
+   "nmsgs": 25,
+   "final_context_tokens_notification": 148575,
+   "notif_tokens_all": [
+    148575
+   ],
+   "dur_notif_s": 464.258,
+   "dur_ts_s": 475.12800002098083,
+   "runs": 1,
+   "resumed": 1,
+   "has_notification": true,
+   "tokens_reliable_output": true,
+   "interim_notifs": 0,
+   "same_message_launch_count": 6,
+   "model_short": "sonnet"
+  },
+  {
+   "wave": "B (tests rouges)",
+   "desc": "B5 tests e2e compat et ArchUnit",
+   "model_req": "opus",
+   "model_real": [
+    "claude-opus-5-5"
+   ],
+   "subagent_type": null,
+   "isolation": "worktree",
+   "launch": "2026-10-22T09:19:40.185Z",
+   "end": "2026-10-22T09:34:21.987Z",
+   "agent_id": "a6121b6e20a66399e",
+   "tool_use_id": "toolu_019pm88rkWpqkBe8GwpXornz",
+   "tokens": {
+    "input": 80,
+    "output": 67779,
+    "cache_read": 5614858,
+    "cache_write": 177994
+   },
+   "nmsgs": 40,
+   "final_context_tokens_notification": 217614,
+   "notif_tokens_all": [
+    217614
+   ],
+   "dur_notif_s": 881.085,
+   "dur_ts_s": 881.8020000457764,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": true,
+   "interim_notifs": 0,
+   "same_message_launch_count": 6,
+   "model_short": "opus"
+  },
+  {
+   "wave": "B (tests rouges)",
+   "desc": "B3 tests gRPC REST référentiel (relance)",
+   "model_req": "sonnet",
+   "model_real": [
+    "claude-sonnet-5-5"
+   ],
+   "subagent_type": null,
+   "isolation": "aucune",
+   "launch": "2026-10-22T09:21:13.133Z",
+   "end": "2026-10-22T09:26:09.928Z",
+   "agent_id": "a0ff4eba0264d930c",
+   "tool_use_id": "toolu_01XfQFKjUR7355DfdVhBFJqk",
+   "tokens": {
+    "input": 26,
+    "output": 22934,
+    "cache_read": 1184511,
+    "cache_write": 87997
+   },
+   "nmsgs": 13,
+   "final_context_tokens_notification": 127058,
+   "notif_tokens_all": [
+    127058
+   ],
+   "dur_notif_s": 293.795,
+   "dur_ts_s": 296.79500007629395,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": true,
+   "interim_notifs": 0,
+   "same_message_launch_count": 2,
+   "model_short": "sonnet"
+  },
+  {
+   "wave": "B (tests rouges)",
+   "desc": "B0 aligner nom propriété (relance)",
+   "model_req": "haiku",
+   "model_real": [
+    "claude-haiku-5-5"
+   ],
+   "subagent_type": null,
+   "isolation": "aucune",
+   "launch": "2026-10-22T09:21:15.605Z",
+   "end": "2026-10-22T09:21:35.930Z",
+   "agent_id": "a921c949028c68a6c",
+   "tool_use_id": "toolu_01CWqmpqyB2PsNFd5c4ZgJxW",
+   "tokens": {
+    "input": 10,
+    "output": 2502,
+    "cache_read": 277705,
+    "cache_write": 27583
+   },
+   "nmsgs": 5,
+   "final_context_tokens_notification": 64968,
+   "notif_tokens_all": [
+    64968
+   ],
+   "dur_notif_s": 19.796,
+   "dur_ts_s": 20.325000047683716,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": true,
+   "interim_notifs": 0,
+   "same_message_launch_count": 2,
+   "model_short": "haiku"
+  },
+  {
+   "wave": "B (tests rouges)",
+   "desc": "Fix collision stubs adapter/batch",
+   "model_req": "haiku",
+   "model_real": [
+    "claude-haiku-5-5"
+   ],
+   "subagent_type": null,
+   "isolation": "aucune",
+   "launch": "2026-10-22T09:30:33.285Z",
+   "end": "2026-10-22T09:41:14.006Z",
+   "agent_id": "a1a974643c70f560a",
+   "tool_use_id": "toolu_01FuNHjVcC7q8tNBje6aAeZd",
+   "tokens": {
+    "input": 32,
+    "output": 12735,
+    "cache_read": 894963,
+    "cache_write": 135043
+   },
+   "nmsgs": 16,
+   "final_context_tokens_notification": 78806,
+   "notif_tokens_all": [
+    78806
+   ],
+   "dur_notif_s": 640.202,
+   "dur_ts_s": 640.720999956131,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": true,
+   "interim_notifs": 0,
+   "same_message_launch_count": 1,
+   "model_short": "haiku"
+  },
+  {
+   "wave": "hors vagues (instrumentation M1/P1)",
+   "desc": "M1 compteurs tokens par agent",
+   "model_req": "sonnet",
+   "model_real": [
+    "claude-sonnet-5-5"
+   ],
+   "subagent_type": null,
+   "isolation": "aucune",
+   "launch": "2026-10-22T09:55:44.279Z",
+   "end": "2026-10-22T10:01:39.803Z",
+   "agent_id": "a54b32372013df15c",
+   "tool_use_id": "toolu_016FoisPXiyVeuZYvBfc9faw",
+   "tokens": {
+    "input": 44,
+    "output": 35343,
+    "cache_read": 2017912,
+    "cache_write": 149598
+   },
+   "nmsgs": 22,
+   "final_context_tokens_notification": null,
+   "notif_tokens_all": [],
+   "dur_notif_s": null,
+   "dur_ts_s": 355.5239999294281,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": false,
+   "tokens_reliable_output": true,
+   "interim_notifs": 0,
+   "same_message_launch_count": 2,
+   "model_short": "sonnet"
+  },
+  {
+   "wave": "hors vagues (instrumentation M1/P1)",
+   "desc": "P1 tarifs API et taux EUR",
+   "model_req": "sonnet",
+   "model_real": [
+    "claude-sonnet-5-5"
+   ],
+   "subagent_type": null,
+   "isolation": "aucune",
+   "launch": "2026-10-22T09:55:52.180Z",
+   "end": "2026-10-22T09:57:11.563Z",
+   "agent_id": "aaaa841ca20fcd168",
+   "tool_use_id": "toolu_01CoiNdX6nTXZmughwKbEZaC",
+   "tokens": {
+    "input": 16,
+    "output": 5869,
+    "cache_read": 730728,
+    "cache_write": 120849
+   },
+   "nmsgs": 8,
+   "final_context_tokens_notification": 122849,
+   "notif_tokens_all": [
+    122849
+   ],
+   "dur_notif_s": 78.947,
+   "dur_ts_s": 79.38299989700317,
+   "runs": 1,
+   "resumed": 0,
+   "has_notification": true,
+   "tokens_reliable_output": true,
+   "interim_notifs": 0,
+   "same_message_launch_count": 2,
+   "model_short": "sonnet"
+  }
+ ],
+ "waves": [
+  {
+   "wave": "0a",
+   "agents": [
+    "T0.1 Scaffolding Maven",
+    "T0.2 Domaine et tests rouges",
+    "T0.3 Contrats proto et OpenAPI",
+    "T0.4 ADR et documentation"
+   ],
+   "models": {
+    "haiku": 2,
+    "opus": 2
+   },
+   "max_parallel": 4,
+   "max_launched_same_message": 4,
+   "start": "2026-10-21T11:52:13.499000",
+   "end": "2026-10-21T12:01:58.747000",
+   "wall_s": 585.2479999065399,
+   "n": 4,
+   "input": 106,
+   "output": 510,
+   "cache_read": 3809616,
+   "cache_write": 365191,
+   "dur_notif_s": 1093.101,
+   "dur_ts_s": 1174.9589998722076,
+   "by_model": {
+    "haiku": {
+     "n": 2,
+     "input": 46,
+     "output": 190,
+     "cache_read": 1522340,
+     "cache_write": 161935,
+     "dur_notif_s": 304.922,
+     "dur_ts_s": 349.0549998283386
+    },
+    "opus": {
+     "n": 2,
+     "input": 60,
+     "output": 320,
+     "cache_read": 2287276,
+     "cache_write": 203256,
+     "dur_notif_s": 788.179,
+     "dur_ts_s": 825.904000043869
+    }
+   }
+  },
+  {
+   "wave": "0a-bis",
+   "agents": [
+    "F1 Aligner statut EN_COURS contrats",
+    "F2 Alternatives par code produit"
+   ],
+   "models": {
+    "haiku": 1,
+    "sonnet": 1
+   },
+   "max_parallel": 2,
+   "max_launched_same_message": 2,
+   "start": "2026-10-21T12:02:34.467000",
+   "end": "2026-10-21T12:04:22.418000",
+   "wall_s": 107.95099997520447,
+   "n": 2,
+   "input": 36,
+   "output": 153,
+   "cache_read": 1011902,
+   "cache_write": 134517,
+   "dur_notif_s": 155.569,
+   "dur_ts_s": 162.14399981498718,
+   "by_model": {
+    "haiku": {
+     "n": 1,
+     "input": 26,
+     "output": 106,
+     "cache_read": 775677,
+     "cache_write": 70585,
+     "dur_notif_s": 101.684,
+     "dur_ts_s": 107.95099997520447
+    },
+    "sonnet": {
+     "n": 1,
+     "input": 10,
+     "output": 47,
+     "cache_read": 236225,
+     "cache_write": 63932,
+     "dur_notif_s": 53.885,
+     "dur_ts_s": 54.192999839782715
+    }
+   }
+  },
+  {
+   "wave": "1'",
+   "agents": [
+    "P1 Implémenter le domaine (vert)",
+    "P2 Schéma Flyway V1 à V3",
+    "P3 Test ArchUnit hexagonal",
+    "P4 Aligner contrats sur 280"
+   ],
+   "models": {
+    "opus": 1,
+    "sonnet": 2,
+    "haiku": 1
+   },
+   "max_parallel": 4,
+   "max_launched_same_message": 4,
+   "start": "2026-10-21T12:07:49.948000",
+   "end": "2026-10-21T12:11:02.444000",
+   "wall_s": 192.4960000514984,
+   "n": 4,
+   "input": 52,
+   "output": 411,
+   "cache_read": 1623601,
+   "cache_write": 190646,
+   "dur_notif_s": 409.455,
+   "dur_ts_s": 452.510999917984,
+   "by_model": {
+    "haiku": {
+     "n": 1,
+     "input": 12,
+     "output": 31,
+     "cache_read": 328084,
+     "cache_write": 24471,
+     "dur_notif_s": 37.529,
+     "dur_ts_s": 38.06100010871887
+    },
+    "sonnet": {
+     "n": 2,
+     "input": 20,
+     "output": 154,
+     "cache_read": 558955,
+     "cache_write": 59910,
+     "dur_notif_s": 204.986,
+     "dur_ts_s": 221.95399975776672
+    },
+    "opus": {
+     "n": 1,
+     "input": 20,
+     "output": 226,
+     "cache_read": 736562,
+     "cache_write": 106265,
+     "dur_notif_s": 166.94,
+     "dur_ts_s": 192.4960000514984
+    }
+   }
+  },
+  {
+   "wave": "2",
+   "agents": [
+    "S0 Clé de contexte gRPC partagée",
+    "Lot 1 Sécurité JWT (TDD phase A)",
+    "Lot 2 Adaptateur gRPC (TDD phase A)",
+    "Lot 3 API REST (TDD phase A)",
+    "Lot 4 Job Spring Batch tension",
+    "Lot 5 Journal d'audit immuable",
+    "Lot 6 Persistance JPA et tests H2",
+    "Lot 7 Données de démo et README",
+    "Lot 6 Persistance JPA (relance)"
+   ],
+   "models": {
+    "haiku": 2,
+    "opus": 3,
+    "sonnet": 4
+   },
+   "max_parallel": 7,
+   "max_launched_same_message": 7,
+   "start": "2026-10-21T12:15:05.389000",
+   "end": "2026-10-21T13:07:30.259000",
+   "wall_s": 3144.8700001239777,
+   "n": 9,
+   "input": 628,
+   "output": 9076,
+   "cache_read": 39731792,
+   "cache_write": 1655377,
+   "dur_notif_s": 8294.445,
+   "dur_ts_s": 8653.47600030899,
+   "by_model": {
+    "haiku": {
+     "n": 2,
+     "input": 150,
+     "output": 1174,
+     "cache_read": 9311592,
+     "cache_write": 265287,
+     "dur_notif_s": 706.256,
+     "dur_ts_s": 772.3149998188019
+    },
+    "sonnet": {
+     "n": 4,
+     "input": 310,
+     "output": 2357,
+     "cache_read": 21377465,
+     "cache_write": 769193,
+     "dur_notif_s": 5231.044,
+     "dur_ts_s": 5372.939000368118
+    },
+    "opus": {
+     "n": 3,
+     "input": 168,
+     "output": 5545,
+     "cache_read": 9042735,
+     "cache_write": 620897,
+     "dur_notif_s": 2357.145,
+     "dur_ts_s": 2508.2220001220703
+    }
+   }
+  },
+  {
+   "wave": "2'",
+   "agents": [
+    "C1 Commande de mise à jour sans Periode",
+    "C2 Corriger les contrats proto et OpenAPI",
+    "C3 Cohérence documentaire et contrats"
+   ],
+   "models": {
+    "sonnet": 1,
+    "haiku": 2
+   },
+   "max_parallel": 2,
+   "max_launched_same_message": 2,
+   "start": "2026-10-21T12:33:11.406000",
+   "end": "2026-10-21T12:41:10.440000",
+   "wall_s": 479.03400015830994,
+   "n": 3,
+   "input": 50,
+   "output": 10459,
+   "cache_read": 1722301,
+   "cache_write": 121731,
+   "dur_notif_s": 460.84399999999994,
+   "dur_ts_s": 472.07400012016296,
+   "by_model": {
+    "haiku": {
+     "n": 2,
+     "input": 38,
+     "output": 10334,
+     "cache_read": 1396193,
+     "cache_write": 98334,
+     "dur_notif_s": 308.43499999999995,
+     "dur_ts_s": 311.2000000476837
+    },
+    "sonnet": {
+     "n": 1,
+     "input": 12,
+     "output": 125,
+     "cache_read": 326108,
+     "cache_write": 23397,
+     "dur_notif_s": 152.409,
+     "dur_ts_s": 160.87400007247925
+    }
+   }
+  },
+  {
+   "wave": "3",
+   "agents": [
+    "R1 Tests rétroactifs du job batch",
+    "R2 Tests rétroactifs du journal d'audit",
+    "S1 Services applicatifs (TDD phase A)",
+    "P5 pom : exclusion JaCoCo et PIT",
+    "B1 B2 Corriger fourche d'audit REQUIRES_NEW",
+    "B3 Corriger assainissement du résumé d'audit",
+    "B4 Durcissement du job batch",
+    "W1 Câblage Spring, horloge et transactions",
+    "E1 Test de bout en bout gRPC REST batch",
+    "B5 Corriger les 500 REST en 404 405 406",
+    "B6 Conflit de verrou optimiste en ABORTED",
+    "D1 Mise à jour de la documentation",
+    "P6 Corriger la portée PIT dans le pom",
+    "D2 Hygiène : gitignore, commentaire batch, type d'erreur",
+    "F1 Rendre le test d'interblocage déterministe"
+   ],
+   "models": {
+    "opus": 5,
+    "sonnet": 8,
+    "haiku": 2
+   },
+   "max_parallel": 4,
+   "max_launched_same_message": 3,
+   "start": "2026-10-21T13:10:41.973000",
+   "end": "2026-10-21T14:50:22.365000",
+   "wall_s": 5980.391999959946,
+   "n": 15,
+   "input": 474,
+   "output": 8042,
+   "cache_read": 26701637,
+   "cache_write": 1581311,
+   "dur_notif_s": 8043.622,
+   "dur_ts_s": 7854.530000209808,
+   "by_model": {
+    "haiku": {
+     "n": 2,
+     "input": 86,
+     "output": 4488,
+     "cache_read": 4993420,
+     "cache_write": 217679,
+     "dur_notif_s": 381.692,
+     "dur_ts_s": 382.74500012397766
+    },
+    "sonnet": {
+     "n": 8,
+     "input": 150,
+     "output": 1429,
+     "cache_read": 5132525,
+     "cache_write": 455511,
+     "dur_notif_s": 2804.175,
+     "dur_ts_s": 2550.201000213623
+    },
+    "opus": {
+     "n": 5,
+     "input": 238,
+     "output": 2125,
+     "cache_read": 16575692,
+     "cache_write": 908121,
+     "dur_notif_s": 4857.755,
+     "dur_ts_s": 4921.583999872208
+    }
+   }
+  },
+  {
+   "wave": "A",
+   "agents": [
+    "A0 ADR-004 règle essentiel",
+    "A1 contrats additifs proto/OpenAPI",
+    "A2 squelettes domaine/application",
+    "A3 migration V4 référentiel",
+    "A4 propriété date entrée en vigueur"
+   ],
+   "models": {
+    "opus": 2,
+    "sonnet": 2,
+    "haiku": 1
+   },
+   "max_parallel": 5,
+   "max_launched_same_message": 5,
+   "start": "2026-10-22T09:12:14.157000",
+   "end": "2026-10-22T09:18:25.194000",
+   "wall_s": 371.0369999408722,
+   "n": 5,
+   "input": 82,
+   "output": 56606,
+   "cache_read": 2536968,
+   "cache_write": 416675,
+   "dur_notif_s": 861.128,
+   "dur_ts_s": 917.3529999256134,
+   "by_model": {
+    "haiku": {
+     "n": 1,
+     "input": 14,
+     "output": 4639,
+     "cache_read": 364646,
+     "cache_write": 67377,
+     "dur_notif_s": 81.012,
+     "dur_ts_s": 81.63300013542175
+    },
+    "sonnet": {
+     "n": 2,
+     "input": 28,
+     "output": 13121,
+     "cache_read": 765218,
+     "cache_write": 142505,
+     "dur_notif_s": 316.63,
+     "dur_ts_s": 328.09999990463257
+    },
+    "opus": {
+     "n": 2,
+     "input": 40,
+     "output": 38846,
+     "cache_read": 1407104,
+     "cache_write": 206793,
+     "dur_notif_s": 463.486,
+     "dur_ts_s": 507.6199998855591
+    }
+   }
+  },
+  {
+   "wave": "B (tests rouges)",
+   "agents": [
+    "B0 aligner nom propriété",
+    "B1 tests règle pure et pondération",
+    "B2 tests services déclarer/mettre à jour",
+    "B3 tests gRPC REST référentiel",
+    "B4 tests batch tension essentiels",
+    "B5 tests e2e compat et ArchUnit",
+    "B3 tests gRPC REST référentiel (relance)",
+    "B0 aligner nom propriété (relance)",
+    "Fix collision stubs adapter/batch"
+   ],
+   "models": {
+    "haiku": 3,
+    "opus": 3,
+    "sonnet": 3
+   },
+   "max_parallel": 6,
+   "max_launched_same_message": 6,
+   "start": "2026-10-22T09:19:01.077000",
+   "end": "2026-10-22T09:41:14.006000",
+   "wall_s": 1332.9290001392365,
+   "n": 9,
+   "input": 342,
+   "output": 208524,
+   "cache_read": 16960700,
+   "cache_write": 842789,
+   "dur_notif_s": 3692.8379999999997,
+   "dur_ts_s": 3822.709000110626,
+   "by_model": {
+    "haiku": {
+     "n": 3,
+     "input": 56,
+     "output": 18882,
+     "cache_read": 1559499,
+     "cache_write": 242060,
+     "dur_notif_s": 702.161,
+     "dur_ts_s": 743.3020000457764
+    },
+    "sonnet": {
+     "n": 3,
+     "input": 92,
+     "output": 60358,
+     "cache_read": 4060339,
+     "cache_write": 223490,
+     "dur_notif_s": 808.661,
+     "dur_ts_s": 839.7350001335144
+    },
+    "opus": {
+     "n": 3,
+     "input": 194,
+     "output": 129284,
+     "cache_read": 11340862,
+     "cache_write": 377239,
+     "dur_notif_s": 2182.016,
+     "dur_ts_s": 2239.6719999313354
+    }
+   }
+  },
+  {
+   "wave": "hors vagues (instrumentation M1/P1)",
+   "agents": [
+    "M1 compteurs tokens par agent",
+    "P1 tarifs API et taux EUR"
+   ],
+   "models": {
+    "sonnet": 2
+   },
+   "max_parallel": 2,
+   "max_launched_same_message": 2,
+   "start": "2026-10-22T09:55:44.279000",
+   "end": "2026-10-22T10:01:39.803000",
+   "wall_s": 355.5239999294281,
+   "n": 2,
+   "input": 60,
+   "output": 41212,
+   "cache_read": 2748640,
+   "cache_write": 270447,
+   "dur_notif_s": 78.947,
+   "dur_ts_s": 434.9069998264313,
+   "by_model": {
+    "sonnet": {
+     "n": 2,
+     "input": 60,
+     "output": 41212,
+     "cache_read": 2748640,
+     "cache_write": 270447,
+     "dur_notif_s": 78.947,
+     "dur_ts_s": 434.9069998264313
+    }
+   }
+  }
+ ],
+ "by_model": {
+  "haiku": {
+   "n": 14,
+   "input": 428,
+   "output": 39844,
+   "cache_read": 20251451,
+   "cache_write": 1147728,
+   "dur_notif_s": 2623.691,
+   "dur_ts_s": 2786.2620000839233
+  },
+  "sonnet": {
+   "n": 23,
+   "input": 682,
+   "output": 118803,
+   "cache_read": 35205475,
+   "cache_write": 2008385,
+   "dur_notif_s": 9650.737,
+   "dur_ts_s": 9962.903000116348
+  },
+  "opus": {
+   "n": 16,
+   "input": 720,
+   "output": 176346,
+   "cache_read": 41390231,
+   "cache_write": 2422571,
+   "dur_notif_s": 10815.521,
+   "dur_ts_s": 11195.49799990654
+  }
+ },
+ "global_max_parallel": 7,
+ "orchestrator": {
+  "total": {
+   "calls": 244,
+   "input": 605,
+   "output": 333583,
+   "thinking_included_in_output": 107267,
+   "cache_read": 69782843,
+   "cache_write": 1171450
+  },
+  "avant_compaction": {
+   "calls": 184,
+   "input": 461,
+   "output": 274942,
+   "thinking_included_in_output": 91034,
+   "cache_read": 60308216,
+   "cache_write": 1006208
+  },
+  "apres_compaction": {
+   "calls": 60,
+   "input": 144,
+   "output": 58641,
+   "thinking_included_in_output": 16233,
+   "cache_read": 9474627,
+   "cache_write": 165242
+  },
+  "jusqua_cost_state": {
+   "calls": 239,
+   "input": 593,
+   "output": 326973,
+   "thinking_included_in_output": 104582,
+   "cache_read": 68674382,
+   "cache_write": 1156585
+  },
+  "models": [
+   "claude-sonnet-5-5"
+  ]
+ },
+ "cost_state_reconciliation": {
+  "haiku": {
+   "harness": {
+    "input": 428,
+    "output": 251377,
+    "thinking": 118603,
+    "cache_read": 20251451,
+    "cache_write": 1147728,
+    "usd": 1.27823671
+   },
+   "subagent_files": {
+    "input": 428,
+    "output": 39844,
+    "cache_read": 20251451,
+    "cache_write": 1147728
+   }
+  },
+  "opus": {
+   "harness": {
+    "input": 720,
+    "output": 672089,
+    "thinking": 191320,
+    "cache_read": 41390231,
+    "cache_write": 2422571,
+    "usd": 33.83556120000001
+   },
+   "subagent_files": {
+    "input": 720,
+    "output": 176346,
+    "cache_read": 41390231,
+    "cache_write": 2422571
+   }
+  },
+  "sonnet": {
+   "harness": {
+    "input": 25525,
+    "output": 694529,
+    "thinking": 172685,
+    "cache_read": 115208695,
+    "cache_write": 2921047,
+    "usd": 27.594490499999992
+   },
+   "subagent_files": {
+    "input": 622,
+    "output": 77591,
+    "cache_read": 32456835,
+    "cache_write": 1737938
+   },
+   "orchestrator_main_until_cost_state": {
+    "calls": 239,
+    "input": 593,
+    "output": 326973,
+    "thinking_included_in_output": 104582,
+    "cache_read": 68674382,
+    "cache_write": 1156585
+   }
+  }
+ },
+ "cost_state_ts": "2026-10-22T09:41:32.497Z",
+ "cost_state_total_usd": 62.70828841,
+ "all_notifs_n": 76,
+ "output_day1_subagents_by_model": {
+  "note": "Sortie des sous-agents du jour 1 par modele: cost-state a 2026-10-21T14:57:37Z (aucun agent du jour 2 encore lance); sonnet = cost-state moins sortie orchestrateur du transcript (suppose celle-ci complete). haiku/opus: mesure exacte; sonnet: mesure derivee.",
+  "day1_file_lower_bound": {
+   "haiku": 16323,
+   "sonnet": 4112,
+   "opus": 8216
+  },
+  "day1_estimate": {
+   "haiku": 227856,
+   "opus": 503959,
+   "sonnet": 286513
+  },
+  "day2_reliable": {
+   "haiku": 23521,
+   "sonnet": 73479,
+   "opus": 168130
+  }
+ }
+}
